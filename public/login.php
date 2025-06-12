@@ -44,25 +44,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <title>Login</title>
-    
+    <link rel="stylesheet" type="text/css" href="assets/css/auth.css">
 </head>
 <body>
+  <!-- Login Form -->
+  <section>
     <h2>Login</h2>
-
     <?php if ($error): ?>
-        <p style="color: red;"><?= $error ?></p>
+      <p class="message error"><?= $error ?></p>
     <?php endif; ?>
-
-    <form method="post">
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
-
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
-
-        <button type="submit">Login</button>
+    <form method="post" novalidate>
+      <label for="login-email">Email:</label>
+      <input id="login-email" type="email" name="email" required autocomplete="email" />
+      <label for="login-password" class="mt-4">Password:</label>
+      <input id="login-password" type="password" name="password" required autocomplete="current-password" />
+      <button type="submit">Login</button>
     </form>
-
     <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+  </section>
 </body>
 </html>

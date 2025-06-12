@@ -1,0 +1,113 @@
+body {
+    font-family: "Inter", sans-serif;
+    background-color: #f9f7ff;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 4rem;
+    flex-wrap: wrap;
+}
+h2 {
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #1f2937; /* gray-800 */
+    margin-bottom: 1rem;
+}
+form {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgb(167 139 250 / 0.3);
+    width: 320px;
+    max-width: 100%;
+}
+label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151; /* gray-700 */
+    margin-bottom: 0.25rem;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+textarea {
+    width: 90%;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #ddd6fe; /* purple-200 */
+    border-radius: 99px;
+    font-size: 0.875rem;
+    color: #1f2937;
+    outline-offset: 2px;
+    outline-color: transparent;
+    transition: outline-color 0.2s ease, border-color 0.2s ease;
+    resize: vertical;
+    min-height: 1rem;
+}
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+textarea:focus {
+    outline-color: #7c3aed; /* purple-700 */
+    border-color: #7c3aed;
+}
+textarea {
+    min-height: 4rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+button {
+    background-color: #7c3aed; /* purple-700 */
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    margin-top: 1rem;
+}
+button:hover {
+    background-color: #6d28d9; /* purple-800 */
+}
+p {
+    font-size: 0.875rem;
+    color: #374151;
+    margin-top: 1rem;
+    text-align: center;
+}
+p a {
+    color: #7c3aed;
+    font-weight: 600;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+p a:hover {
+    text-decoration: underline;
+}
+.message {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    max-width: 320px;
+    text-align: center;
+}
+.error {
+    background-color: #fee2e2; /* red-100 */
+    color: #b91c1c; /* red-700 */
+    border: 1px solid #fca5a5; /* red-400 */
+}
+.success {
+    background-color: #d1fae5; /* green-100 */
+    color: #065f46; /* green-700 */
+    border: 1px solid #6ee7b7; /* green-400 */
+}
