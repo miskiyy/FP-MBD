@@ -27,6 +27,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     <ul>
         <li><a href="../admin/usermanage/manage_user.php">🔧 Manage User</a></li>
         <li><a href="../admin/coursemanage/manage_course.php">📚 Manage Course</a></li>
+        <li><a href="../admin/eventmanage/manage_event.php">🎉 Manage Event</a></li>
+        <li><a href="../admin/sertifikatmanage/manage_sertifikat.php">🏆 Manage Sertifikat</a></li>
         <li><a href="logout.php">🚪 Logout</a></li>
     </ul>
 </body>

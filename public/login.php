@@ -9,25 +9,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
 
     // Cek di tabel user
-    $stmtUser = $pdo->prepare("SELECT * FROM user WHERE Email = ? AND password = ?");
-    $stmtUser->execute([$email, $password]);
-    $user = $stmtUser->fetch();
+    $stmtUser = $conn->prepare("SELECT * FROM user WHERE Email = ? AND password = ?");
+    $stmtUser->bind_param("ss", $email, $password);
+    $stmtUser->execute();
+    $resultUser = $stmtUser->get_result();
+    $user = $resultUser->fetch_assoc();
 
     // Cek di tabel karyawan
-    $stmtKaryawan = $pdo->prepare("SELECT * FROM karyawan WHERE Email = ? AND password = ?");
-    $stmtKaryawan->execute([$email, $password]);
-    $karyawan = $stmtKaryawan->fetch();
+    $stmtKaryawan = $conn->prepare("SELECT * FROM karyawan WHERE Email = ? AND password = ?");
+    $stmtKaryawan->bind_param("ss", $email, $password);
+    $stmtKaryawan->execute();
+    $resultKaryawan = $stmtKaryawan->get_result();
+    $karyawan = $resultKaryawan->fetch_assoc();
 
     if ($user) {
         $_SESSION['role'] = 'user';
         $_SESSION['name'] = $user['First_Name'];
-        $_SESSION['ID'] = $user['ID']; // optional: kalau butuh ID user
+        $_SESSION['ID'] = $user['ID'];
         header("Location: dashboard_user.php");
         exit();
     } elseif ($karyawan) {
         $_SESSION['role'] = 'karyawan';
         $_SESSION['name'] = $karyawan['First_Name'];
-        $_SESSION['NIK'] = $karyawan['NIK']; // INI WAJIB BUAT DASHBOARD ADMIN
+        $_SESSION['NIK'] = $karyawan['NIK'];
         header("Location: dashboard_admin.php");
         exit();
     } else {
