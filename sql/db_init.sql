@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 11, 2025 at 09:25 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Jun 12, 2025 at 11:45 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `codingin_sbdta`
+-- Database: `test`
 --
 
 -- --------------------------------------------------------
@@ -83,8 +83,8 @@ CREATE TABLE `courses` (
   `ID_courses` char(6) NOT NULL,
   `Nama_course` varchar(100) NOT NULL,
   `Rating_course` float DEFAULT NULL,
-  `Tingkat_kesulitan` varchar(10) NOT NULL,
-  `Sertifikat_ID_sertifikat` char(8) NOT NULL,
+  `Tingkat_kesulitan` float DEFAULT NULL,
+  `Sertifikat_ID_sertifikat` char(8) DEFAULT NULL,
   `Karyawan_NIK` char(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -93,16 +93,16 @@ CREATE TABLE `courses` (
 --
 
 INSERT INTO `courses` (`ID_courses`, `Nama_course`, `Rating_course`, `Tingkat_kesulitan`, `Sertifikat_ID_sertifikat`, `Karyawan_NIK`) VALUES
-('CRS001', 'Python', 9.7, '7.8', 'SRF001', '1234567890123456'),
-('CRS002', 'Data Science', 9.3, '8.6', 'SRF002', '1367890123456245'),
-('CRS003', 'Git dan Github', 9.6, '9.5', 'SRF003', '1356789012345624'),
-('CRS004', 'HTML', 9.4, '8', 'SRF004', '1345678901234562'),
-('CRS005', 'CSS', 9.8, '8.3', 'SRF005', '1456789012345623'),
-('CRS006', 'JavaScript', 9.5, '9', 'SRF006', '1567890123456234'),
-('CRS007', 'Linux', 9.5, '9.4', 'SRF007', '1367890123456245'),
-('CRS008', 'C++', 9.8, '9.7', 'SRF008', '1345678901234562'),
-('CRS009', 'C', 9.7, '9.3', 'SRF009', '1456789012345623'),
-('CRS010', 'React', 9.5, '8', 'SRF010', '1234567890123456');
+('CRS001', 'Python', 9.7, 7.8, 'SRF001', '1234567890123456'),
+('CRS002', 'Data Science', 9.3, 8.6, 'SRF002', '1367890123456245'),
+('CRS003', 'Git dan Github', 9.6, 9.5, 'SRF003', '1356789012345624'),
+('CRS004', 'HTML', 9.4, 8, 'SRF004', '1345678901234562'),
+('CRS005', 'CSS', 9.8, 8.3, 'SRF005', '1456789012345623'),
+('CRS006', 'JavaScript', 9.5, 9, 'SRF006', '1567890123456234'),
+('CRS007', 'Linux', 9.5, 9.4, 'SRF007', '1367890123456245'),
+('CRS008', 'C++', 9.8, 9.7, 'SRF008', '1345678901234562'),
+('CRS009', 'C', 9.7, 9.3, 'SRF009', '1456789012345623'),
+('CRS010', 'React', 9.5, 8, 'SRF010', '1234567890123456');
 
 -- --------------------------------------------------------
 
@@ -129,7 +129,7 @@ CREATE TABLE `event` (
 --
 
 INSERT INTO `event` (`ID_event`, `Nama_Event`, `Jenis_Event`, `Deskripsi_Event`, `Lokasi_Acara`, `Biaya_Pendaftaran`, `Kuota_Pendaftaran`, `tanggal_mulai_event`, `tanggal_berakhir_event`, `Sertifikat_ID_Sertifikat`, `Karyawan_NIK`) VALUES
-('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BCA!', 'Zoom', 0.00, 200, '2023-10-01', '2023-10-11', 'SRF011', '1234567890123456'),
+('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BRI!', 'Zoom', 70000.00, 200, '2023-10-01', '2023-10-11', 'SRF011', '1456789012345623'),
 ('EVX002', 'Empowering Tech Explorers', 'Seminar', 'Get ready to be inspired and empowered at the GDSC Trilogi University Onboarding! We are thrilled to welcome a special guest who will share invaluable insights and knowledge', 'Zoom', 20000.00, 250, '2023-08-03', '2023-08-09', 'SRF012', '1367890123456245'),
 ('EVX003', 'Study Jam UI/UX', 'Workshop', 'Study Jam UI/UX merupakan kelompok belajar yang diselenggarakan oleh GDSC Maliki dan komunitas UINUX yang membahas tentang UX Design.', 'Discord', 0.00, 150, '2023-06-09', '2023-06-16', 'SRF013', '1456789012345623'),
 ('EVX004', 'Intermediate Python', 'Workshop', 'Kali ini kita akan belajar lebih banyak tentang Python, khususnya OOP, Subprogram, dll. Kita akan mengeksplorasi lebih jauh tentang penggunaan bahasa Python dan cara mengimplementasikannya dalam proye', 'Google Meet', 50000.00, 180, '2023-11-20', '2023-11-28', 'SRF014', '1234567890123456');
@@ -149,20 +149,21 @@ CREATE TABLE `karyawan` (
   `Pengalaman_Kerja` varchar(150) DEFAULT NULL,
   `Jabatan` varchar(60) NOT NULL,
   `Tanggal_Mulai_Bekerja` date NOT NULL,
-  `Tanggal_Berakhir` date NOT NULL
+  `Tanggal_Berakhir` date NOT NULL,
+  `password` varchar(255) NOT NULL DEFAULT 'admin123'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `karyawan`
 --
 
-INSERT INTO `karyawan` (`NIK`, `First_Name`, `Last_Name`, `Email`, `Riwayat_Pendidikan`, `Pengalaman_Kerja`, `Jabatan`, `Tanggal_Mulai_Bekerja`, `Tanggal_Berakhir`) VALUES
-('1234567890123456', 'Harry', 'Potter', 'HarryPotter@gmail.com', 'S-3 Computer Engineering', 'Pernah menjadi Software Engineer', 'Pengembang', '2020-01-01', '2023-12-01'),
-('1345678901234562', 'Jefri', 'Nichol', 'JefriNichol@gmail.com', 'S-2 Informatic Engineering', 'Sebelumnya pernah menjadi Backend Developer', 'Ahli Pendidikan', '2020-01-04', '2023-12-04'),
-('1356789012345624', 'Haechan', NULL, 'Haechan@gmail.com', 'S-2 Science Data', 'Pernah menjadi Cyber Security di pemerintahan', 'Ahli Pendidikan', '2020-01-03', '2023-12-03'),
-('1367890123456245', 'Iqbal', 'Ramadhan', 'IqbalRamadhan@gmail.com', 'S-2 Information System', 'Fresh Graduate', 'Ahli Pendidikan', '2020-01-02', '2023-12-02'),
-('1456789012345623', 'Jisoo', NULL, 'Jisoo@gmail.com', 'S-1 Informatic Engineering', 'Fresh Graduate', 'Ahli Pendidikan', '2020-01-05', '2023-12-05'),
-('1567890123456234', 'Taylor', 'Swift', 'TaylorSwift@gmail.com', 'S-2 Marketing Analytics', 'Pernah menjadi designer UI/UX', 'Marketing', '2020-01-06', '2023-12-06');
+INSERT INTO `karyawan` (`NIK`, `First_Name`, `Last_Name`, `Email`, `Riwayat_Pendidikan`, `Pengalaman_Kerja`, `Jabatan`, `Tanggal_Mulai_Bekerja`, `Tanggal_Berakhir`, `password`) VALUES
+('1234567890123456', 'Harry', 'Potter', 'HarryPotter@gmail.com', 'S-3 Computer Engineering', 'Pernah menjadi Software Engineer', 'Pengembang', '2020-01-01', '2023-12-01', 'admin123'),
+('1345678901234562', 'Jefri', 'Nichol', 'JefriNichol@gmail.com', 'S-2 Informatic Engineering', 'Sebelumnya pernah menjadi Backend Developer', 'Ahli Pendidikan', '2020-01-04', '2023-12-04', 'admin123'),
+('1356789012345624', 'Haechan', NULL, 'Haechan@gmail.com', 'S-2 Science Data', 'Pernah menjadi Cyber Security di pemerintahan', 'Ahli Pendidikan', '2020-01-03', '2023-12-03', 'admin123'),
+('1367890123456245', 'Iqbal', 'Ramadhan', 'IqbalRamadhan@gmail.com', 'S-2 Information System', 'Fresh Graduate', 'Ahli Pendidikan', '2020-01-02', '2023-12-02', 'admin123'),
+('1456789012345623', 'Jisoo', NULL, 'Jisoo@gmail.com', 'S-1 Informatic Engineering', 'Fresh Graduate', 'Ahli Pendidikan', '2020-01-05', '2023-12-05', 'admin123'),
+('1567890123456234', 'Taylor', 'Swift', 'TaylorSwift@gmail.com', 'S-2 Marketing Analytics', 'Pernah menjadi designer UI/UX', 'Marketing', '2020-01-06', '2023-12-06', 'admin123');
 
 -- --------------------------------------------------------
 
@@ -267,28 +268,30 @@ INSERT INTO `paket` (`ID_paket`, `Nama_paket`, `Durasi_paket`, `Harga`) VALUES
 
 CREATE TABLE `sertifikat` (
   `ID_Sertifikat` char(8) NOT NULL,
-  `Nama_Sertifikat` varchar(100) NOT NULL
+  `Nama_Sertifikat` varchar(100) NOT NULL,
+  `sertif_template` varchar(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sertifikat`
 --
 
-INSERT INTO `sertifikat` (`ID_Sertifikat`, `Nama_Sertifikat`) VALUES
-('SRF001', 'Python'),
-('SRF002', 'Data Science'),
-('SRF003', 'Git dan GitHub'),
-('SRF004', 'HTML'),
-('SRF005', 'CSS'),
-('SRF006', 'JavaScript'),
-('SRF007', 'Linux'),
-('SRF008', 'C++'),
-('SRF009', 'C'),
-('SRF010', 'React'),
-('SRF011', 'Cyber Security in Banking'),
-('SRF012', 'Empowering Tech Explorers'),
-('SRF013', 'Study Jam UI/UX'),
-('SRF014', 'Intermediate Python');
+INSERT INTO `sertifikat` (`ID_Sertifikat`, `Nama_Sertifikat`, `sertif_template`) VALUES
+('notassig', 'Belum Terassign', 'default_template.png'),
+('SRF001', 'Python', 'default_template.png'),
+('SRF002', 'Data Science', 'default_template.png'),
+('SRF003', 'Git dan GitHub', 'default_template.png'),
+('SRF004', 'HTML', 'default_template.png'),
+('SRF005', 'CSS', 'default_template.png'),
+('SRF006', 'JavaScript', 'default_template.png'),
+('SRF007', 'Linux', 'default_template.png'),
+('SRF008', 'C++', 'default_template.png'),
+('SRF009', 'C', 'default_template.png'),
+('SRF010', 'React', 'default_template.png'),
+('SRF011', 'Cyber Security in Banking', 'default_template.png'),
+('SRF012', 'Empowering Tech Explorers', 'default_template.png'),
+('SRF013', 'Study Jam UI/UX', 'default_template.png'),
+('SRF014', 'Intermediate Python', 'default_template.png');
 
 -- --------------------------------------------------------
 
@@ -298,28 +301,29 @@ INSERT INTO `sertifikat` (`ID_Sertifikat`, `Nama_Sertifikat`) VALUES
 
 CREATE TABLE `sertifuser` (
   `User_ID` char(6) NOT NULL,
-  `Sertifikat_ID_Sertifikat` char(6) NOT NULL
+  `Sertifikat_ID_Sertifikat` char(6) NOT NULL,
+  `tanggal_diberikan` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sertifuser`
 --
 
-INSERT INTO `sertifuser` (`User_ID`, `Sertifikat_ID_Sertifikat`) VALUES
-('000001', 'SRF004'),
-('000001', 'SRF008'),
-('000001', 'SRF011'),
-('000001', 'SRF012'),
-('000002', 'SRF002'),
-('000002', 'SRF012'),
-('000002', 'SRF014'),
-('000003', 'SRF001'),
-('000003', 'SRF012'),
-('000003', 'SRF005'),
-('000005', 'SRF006'),
-('000005', 'SRF013'),
-('000005', 'SRF012'),
-('000004', 'SRF004');
+INSERT INTO `sertifuser` (`User_ID`, `Sertifikat_ID_Sertifikat`, `tanggal_diberikan`) VALUES
+('000001', 'SRF004', '2025-06-12 15:46:33'),
+('000001', 'SRF008', '2025-06-12 15:46:33'),
+('000001', 'SRF011', '2025-06-12 15:46:33'),
+('000001', 'SRF012', '2025-06-12 15:46:33'),
+('000002', 'SRF002', '2025-06-12 15:46:33'),
+('000002', 'SRF012', '2025-06-12 15:46:33'),
+('000002', 'SRF014', '2025-06-12 15:46:33'),
+('000003', 'SRF001', '2025-06-12 15:46:33'),
+('000003', 'SRF012', '2025-06-12 15:46:33'),
+('000003', 'SRF005', '2025-06-12 15:46:33'),
+('000005', 'SRF006', '2025-06-12 15:46:33'),
+('000005', 'SRF013', '2025-06-12 15:46:33'),
+('000005', 'SRF012', '2025-06-12 15:46:33'),
+('000004', 'SRF004', '2025-06-12 15:46:33');
 
 --
 -- Triggers `sertifuser`
@@ -433,21 +437,22 @@ CREATE TABLE `user` (
   `Nomor_Telepon` varchar(15) NOT NULL,
   `Email` varchar(60) NOT NULL,
   `Tentang_Saya` varchar(150) DEFAULT NULL,
-  `Tanggal_Lahir` date NOT NULL
+  `Tanggal_Lahir` date NOT NULL,
+  `password` varchar(255) NOT NULL DEFAULT '123456'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`ID`, `First_Name`, `Last_Name`, `Jenis_kelamin`, `Pekerjaan`, `Kota`, `Negara`, `Nomor_Telepon`, `Email`, `Tentang_Saya`, `Tanggal_Lahir`) VALUES
-('000001', 'Miskiyah', NULL, 'P', 'Mahasiswa', 'Surabaya', 'Indonesia', '85712341234', 'Miskiyah@gmail.com', 'Saya cita citanya menjadi hokage tp kata mamah egk boleh', '2004-02-02'),
-('000002', 'Winda', ' Nafiqih', 'P', 'Mahasiswa', 'Nganjuk', 'Indonesia', '85712341235', 'WindaNafiqih@gmail.com', NULL, '2004-03-03'),
-('000003', 'Alma', 'Khusnia', 'P', 'Mahasiswa', 'Blitar', 'Indonesia', '85712341236', 'AlmaKhusnia@gmail.com', 'saya mau selesaiin dasprog', '2004-04-04'),
-('000004', 'Zaky', 'Fathurrahman', 'L', 'Mahasiswa', 'Surabaya', 'Indonesia', '85712341237', 'ZakyFathurrahman@gmail.com', NULL, '2004-05-05'),
-('000005', 'Aryaka', 'Leorgi ', 'L', 'Mahasiswa', 'Semarang', 'Indonesia', '85712341238', 'Aryaka@gmail.com', NULL, '2004-06-06'),
-('000006', 'Mariadi', NULL, 'L', 'Mahasiswa', 'Bandung', 'Indonesia', '85712341231', 'mariadi@gmail.com', NULL, '2002-06-06'),
-('000007', 'Fela', NULL, 'P', 'Mahasiswa', 'Bandung', 'Indonesia', '85712341231', 'Fela@its.ac.id', NULL, '2003-07-07');
+INSERT INTO `user` (`ID`, `First_Name`, `Last_Name`, `Jenis_kelamin`, `Pekerjaan`, `Kota`, `Negara`, `Nomor_Telepon`, `Email`, `Tentang_Saya`, `Tanggal_Lahir`, `password`) VALUES
+('000001', 'Miskiyah', '', 'P', 'Mahasiswa', 'Surabaya', 'Indonesia', '85712341234', 'miskiyah@gmail.com', 'Saya cita citanya menjadi hokage tp kata mamah egk boleh', '2004-02-02', '123456'),
+('000002', 'Winda', ' Nafiqih', 'P', 'Mahasiswa', 'Nganjuk', 'Indonesia', '85712341235', 'WindaNafiqih@gmail.com', NULL, '2004-03-03', '123456'),
+('000003', 'Alma', 'Khusnia', 'P', 'Mahasiswa', 'Blitar', 'Indonesia', '85712341236', 'AlmaKhusnia@gmail.com', 'saya mau selesaiin dasprog', '2004-04-04', '123456'),
+('000004', 'Zaky', 'Fathurrahman', 'L', 'Mahasiswa', 'Surabaya', 'Indonesia', '85712341237', 'ZakyFathurrahman@gmail.com', NULL, '2004-05-05', '123456'),
+('000005', 'Aryaka', 'Leorgi ', 'L', 'Mahasiswa', 'Semarang', 'Indonesia', '85712341238', 'Aryaka@gmail.com', NULL, '2004-06-06', '123456'),
+('000006', 'Mariadi', NULL, 'L', 'Mahasiswa', 'Bandung', 'Indonesia', '85712341231', 'mariadi@gmail.com', NULL, '2002-06-06', '123456'),
+('000007', 'Fela', NULL, 'P', 'Mahasiswa', 'Bandung', 'Indonesia', '85712341231', 'Fela@its.ac.id', NULL, '2003-07-07', '123456');
 
 -- --------------------------------------------------------
 
