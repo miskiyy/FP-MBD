@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../helpers/id_generator.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -8,7 +9,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
+    $id = generateIDUnique($conn, 'user', 'ID', 'US', 4); // Contoh: USX1Y2
     $fname = $_POST['fname'];
     $lname = $_POST['lname'];
     $jk = $_POST['jk'];
@@ -35,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <h2>Tambah User Baru</h2>
 <form method="post">
-    ID: <input type="text" name="id" required><br>
     Nama Depan: <input type="text" name="fname" required><br>
     Nama Belakang: <input type="text" name="lname"><br>
     Jenis Kelamin: <input type="text" name="jk" required><br>

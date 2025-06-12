@@ -58,7 +58,6 @@ if (!$result) {
 <a href="?tipe=event">🔖 Berdasarkan Event</a> | <a href="?tipe=course">📚 Berdasarkan Course</a>
 <br><br>
 
-<!-- add sertif ke add_sertifuser.php -->
 <a href="add_sertifuser.php">Assign Sertifikat</a>
 
 <table border="1" cellpadding="8" cellspacing="0">

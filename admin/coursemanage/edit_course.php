@@ -21,11 +21,18 @@ $stmt->execute();
 $result = $stmt->get_result();
 $course = $result->fetch_assoc();
 
+$sertifikat = $conn->query("
+    SELECT ID_Sertifikat, Nama_Sertifikat
+    FROM sertifikat
+    WHERE ID_Sertifikat = 'notassig'
+       OR Nama_Sertifikat NOT LIKE 'Event:%'
+");
+
 if (!$course) {
     $error = "Course tidak ditemukan.";
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = $_POST["Nama_course"];
-    $rating = $_POST["Rating_course"];
+    $rating = isset($_POST["Rating_course"]) ? $_POST["Rating_course"] : ($course["Rating_course"] ?? 0);
     $tingkat = $_POST["Tingkat_kesulitan"];
     $sertifikat = $_POST["Sertifikat_ID_sertifikat"];
     $nik = $_POST["Karyawan_NIK"];
@@ -73,8 +80,14 @@ if (!$course) {
         <input type="range" name="Tingkat_kesulitan" min="1" max="10" step="0.1" value="<?= $course['Tingkat_kesulitan'] ?>" oninput="this.nextElementSibling.value = this.value">
         <output><?= $course['Tingkat_kesulitan'] ?></output><br>
 
-        <label>ID Sertifikat:</label><br>
-        <input type="text" name="Sertifikat_ID_sertifikat" value="notassign" readonly><br>
+        <select name="Sertifikat_ID_sertifikat" required>
+            <option value="">-- Pilih Sertifikat --</option>
+            <?php while ($s = $sertifikat->fetch_assoc()): ?>
+                <option value="<?= $s['ID_Sertifikat'] ?>">
+                    <?= $s['Nama_Sertifikat'] ?> (<?= $s['ID_Sertifikat'] ?>)
+                </option>
+            <?php endwhile; ?>
+        </select><br>
         
         <label>Karyawan (NIK):</label><br>
         <select name="Karyawan_NIK" required>

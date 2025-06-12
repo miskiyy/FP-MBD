@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../helpers/id_generator.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -10,12 +11,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 $success = "";
 $error = "";
 
-function generateID() {
-    return "CR" . strtoupper(substr(md5(uniqid()), 0, 4));
-}
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateID();
+    $id = generateIDUnique($conn, 'challenge', 'ID_challenge', 'CH', 4); // Contoh: CH1A2B
     $nama = $_POST["nama_challenge"];
     $deskripsi = $_POST["deskripsi"];
     $mulai = $_POST["tanggal_mulai"];

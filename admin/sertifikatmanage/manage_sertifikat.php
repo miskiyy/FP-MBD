@@ -12,7 +12,6 @@ $result = mysqli_query($conn, $query);
 ?>
 
 <h2>Daftar Sertifikat</h2>
-<a href="add_sertifikat.php">+ Tambah Sertifikat</a>
 <table border="1">
     <tr>
         <th>ID</th>
