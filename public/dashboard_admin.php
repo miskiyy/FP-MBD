@@ -18,6 +18,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "karyawan") {
       <a href="../admin/coursemanage/manage_course.php" class="list-group-item list-group-item-action">📚 Manage Course</a>
       <a href="../admin/eventmanage/manage_event.php" class="list-group-item list-group-item-action">🎉 Manage Event</a>
       <a href="../admin/sertifikatmanage/manage_sertifikat.php" class="list-group-item list-group-item-action">🏆 Manage Sertifikat</a>
+      <a href="../admin/transaksimanage/manage_transaction.php" class="list-group-item list-group-item-action">💵 Manage Transaksi</a>
       <a href="logout.php" class="list-group-item list-group-item-action text-danger">🚪 Logout</a>
     </div>
   </div>
