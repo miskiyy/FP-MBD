@@ -15,6 +15,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "karyawan") {
 
     <div class="list-group list-group-flush mt-4">
       <a href="../admin/usermanage/manage_user.php" class="list-group-item list-group-item-action">🔧 Manage User</a>
+      <a href="../admin/paketmanage/manage_paket.php" class="list-group-item list-group-item-action">📦 Manage Paket</a>
       <a href="../admin/coursemanage/manage_course.php" class="list-group-item list-group-item-action">📚 Manage Course</a>
       <a href="../admin/eventmanage/manage_event.php" class="list-group-item list-group-item-action">🎉 Manage Event</a>
       <a href="../admin/sertifikatmanage/manage_sertifikat.php" class="list-group-item list-group-item-action">🏆 Manage Sertifikat</a>
