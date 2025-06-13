@@ -1,12 +1,12 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "test";
+$host = 'localhost';
+$dbname = 'test';  // ganti sesuai nama database kamu
+$username = 'root';
+$password = '';     // kosongkan jika pakai XAMPP
 
-$conn = mysqli_connect($host, $user, $pass, $db);
-
-if (!$conn) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Koneksi database gagal: " . $e->getMessage());
 }
-?>
