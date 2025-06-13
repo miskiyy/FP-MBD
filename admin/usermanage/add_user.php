@@ -33,19 +33,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-<h2>Tambah User Baru</h2>
-<form method="post">
-    Nama Depan: <input type="text" name="fname" required><br>
-    Nama Belakang: <input type="text" name="lname"><br>
-    Jenis Kelamin: <input type="text" name="jk" required><br>
-    Pekerjaan: <input type="text" name="pekerjaan" required><br>
-    Kota: <input type="text" name="kota" required><br>
-    Negara: <input type="text" name="negara" required><br>
-    Telepon: <input type="text" name="telepon" required><br>
-    Email: <input type="email" name="email" required><br>
-    Tentang Saya: <input type="text" name="tentang"><br>
-    Tanggal Lahir: <input type="date" name="tanggal_lahir" required><br>
-    Password: <input type="text" name="password" required><br>
-    <button type="submit">Simpan</button>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Admin</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+    <?php include __DIR__ . '/assets/template/admin.php'; ?>
+    <main class="flex-1 p-8">
+        <h2>Tambah User Baru</h2>
+        <form method="post">
+            Nama Depan: <input type="text" name="fname" required><br>
+            Nama Belakang: <input type="text" name="lname"><br>
+            Jenis Kelamin: <input type="text" name="jk" required><br>
+            Pekerjaan: <input type="text" name="pekerjaan" required><br>
+            Kota: <input type="text" name="kota" required><br>
+            Negara: <input type="text" name="negara" required><br>
+            Telepon: <input type="text" name="telepon" required><br>
+            Email: <input type="email" name="email" required><br>
+            Tentang Saya: <input type="text" name="tentang"><br>
+            Tanggal Lahir: <input type="date" name="tanggal_lahir" required><br>
+            Password: <input type="text" name="password" required><br>
+            <button type="submit">Simpan</button>
+    </main>
+</body>
 </form>
