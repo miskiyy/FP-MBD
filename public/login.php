@@ -9,23 +9,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
 
     // Cek di tabel user
-    $stmtUser = $conn->prepare("SELECT * FROM user WHERE Email = ? AND password = ?");
-    $stmtUser->bind_param("ss", $email, $password);
-    $stmtUser->execute();
-    $resultUser = $stmtUser->get_result();
-    $user = $resultUser->fetch_assoc();
+    $stmtUser = $pdo->prepare("SELECT * FROM user WHERE Email = ? AND password = ?");
+    $stmtUser->execute([$email, $password]);
+    $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
     // Cek di tabel karyawan
-    $stmtKaryawan = $conn->prepare("SELECT * FROM karyawan WHERE Email = ? AND password = ?");
-    $stmtKaryawan->bind_param("ss", $email, $password);
-    $stmtKaryawan->execute();
-    $resultKaryawan = $stmtKaryawan->get_result();
-    $karyawan = $resultKaryawan->fetch_assoc();
+    $stmtKaryawan = $pdo->prepare("SELECT * FROM karyawan WHERE Email = ? AND password = ?");
+    $stmtKaryawan->execute([$email, $password]);
+    $karyawan = $stmtKaryawan->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
         $_SESSION['role'] = 'user';
         $_SESSION['name'] = $user['First_Name'];
-        $_SESSION['ID'] = $user['ID'];
+        $_SESSION['user_id'] = $user['ID'];
         header("Location: dashboard_user.php");
         exit();
     } elseif ($karyawan) {
@@ -40,27 +36,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="assets/css/auth.css">
-</head>
-<body>
-  <!-- Login Form -->
-  <section>
-    <h2>Login</h2>
-    <?php if ($error): ?>
-      <p class="message error"><?= $error ?></p>
-    <?php endif; ?>
-    <form method="post" novalidate>
-      <label for="login-email">Email:</label>
-      <input id="login-email" type="email" name="email" required autocomplete="email" />
-      <label for="login-password" class="mt-4">Password:</label>
-      <input id="login-password" type="password" name="password" required autocomplete="current-password" />
-      <button type="submit">Login</button>
-    </form>
-    <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
-  </section>
-</body>
-</html>
+<?php include '../includes/header.php'; ?>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card p-4">
+        <h3 class="text-center mb-4">Login</h3>
+
+        <?php if ($error): ?>
+          <div class="alert alert-danger"><?= $error ?></div>
+        <?php endif; ?>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Masuk</button>
+        </form>
+
+        <div class="text-center mt-3">
+          <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
