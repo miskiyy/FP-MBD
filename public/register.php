@@ -1,13 +1,12 @@
 <?php
 require_once '../config/database.php';
-require_once '../admin/helpers/id_generator.php';
 session_start();
 
 $success = "";
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = function_exists('generateIDUnique') ? generateIDUnique($conn, 'user', 'ID', 'US', 4) : uniqid('US');
+    $id = uniqid();
     $first = $_POST["first_name"];
     $last = $_POST["last_name"];
     $gender = $_POST["jenis_kelamin"];
@@ -24,85 +23,107 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($password !== $confirm) {
         $error = "Password dan konfirmasi tidak cocok.";
     } else {
-        // Cek email sudah terdaftar
-        $stmt = $conn->prepare("SELECT ID FROM user WHERE Email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
+        $stmt = $pdo->prepare("SELECT * FROM user WHERE Email = ?");
+        $stmt->execute([$email]);
+
+        if ($stmt->rowCount() > 0) {
             $error = "Email sudah digunakan.";
         } else {
-            // Simpan user baru
-            $stmt = $conn->prepare("INSERT INTO user 
+            $stmt = $pdo->prepare("INSERT INTO user 
                 (ID, First_Name, Last_Name, Jenis_kelamin, Pekerjaan, Kota, Negara, Nomor_Telepon, Email, Tentang_Saya, Tanggal_Lahir, password)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssssssss", $id, $first, $last, $gender, $pekerjaan, $kota, $negara, $telepon, $email, $tentang, $lahir, $password);
-            if ($stmt->execute()) {
-                $success = "Registrasi berhasil! Silakan <a href='login.php'>login</a>.";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+
+            $result = $stmt->execute([
+                $id, $first, $last, $gender, $pekerjaan, $kota, $negara, $telepon, $email, $tentang, $lahir, $password
+            ]);
+
+            if ($result) {
+                $success = "Registrasi berhasil! Silakan login.";
             } else {
                 $error = "Gagal menyimpan data.";
             }
         }
-        $stmt->close();
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Register User</title>
-    <link rel="stylesheet" type="text/css" href="assets/css/auth.css">
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<section>
-    <h2>Form Registrasi</h2>
-    <?php if ($success): ?>
-        <p class="message success"><?= $success ?></p>
-    <?php endif; ?>
-    <?php if ($error): ?>
-        <p class="message error"><?= $error ?></p>
-    <?php endif; ?>
-    <form method="post" novalidate>
-        <label for="first_name">First Name:</label>
-        <input id="first_name" type="text" name="first_name" required autocomplete="given-name" />
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="card shadow mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <h3 class="card-title mb-4 text-center">Form Registrasi</h3>
 
-        <label for="last_name" class="mt-4">Last Name:</label>
-        <input id="last_name" type="text" name="last_name" autocomplete="family-name" />
+            <?php if ($success): ?>
+                <div class="alert alert-success"><?= $success ?></div>
+            <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endif; ?>
 
-        <label for="jenis_kelamin" class="mt-4">Jenis Kelamin (L/P):</label>
-        <input id="jenis_kelamin" type="text" name="jenis_kelamin" maxlength="1" required />
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Jenis Kelamin (L/P)</label>
+                    <input type="text" name="jenis_kelamin" class="form-control" maxlength="1" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Pekerjaan</label>
+                    <input type="text" name="pekerjaan" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kota</label>
+                    <input type="text" name="kota" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Negara</label>
+                    <input type="text" name="negara" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nomor Telepon</label>
+                    <input type="text" name="nomor_telepon" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tentang Saya</label>
+                    <textarea name="tentang_saya" class="form-control"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Konfirmasi Password</label>
+                    <input type="password" name="confirm" class="form-control" required>
+                </div>
 
-        <label for="pekerjaan" class="mt-4">Pekerjaan:</label>
-        <input id="pekerjaan" type="text" name="pekerjaan" required />
+                <button type="submit" class="btn btn-primary w-100">Daftar</button>
+            </form>
 
-        <label for="kota" class="mt-4">Kota:</label>
-        <input id="kota" type="text" name="kota" required />
-
-        <label for="negara" class="mt-4">Negara:</label>
-        <input id="negara" type="text" name="negara" required />
-
-        <label for="nomor_telepon" class="mt-4">Nomor Telepon:</label>
-        <input id="nomor_telepon" type="text" name="nomor_telepon" required />
-
-        <label for="email" class="mt-4">Email:</label>
-        <input id="email" type="email" name="email" required autocomplete="email" />
-
-        <label for="tentang_saya" class="mt-4">Tentang Saya:</label>
-        <textarea id="tentang_saya" name="tentang_saya" rows="3"></textarea>
-
-        <label for="tanggal_lahir" class="mt-4">Tanggal Lahir:</label>
-        <input id="tanggal_lahir" type="date" name="tanggal_lahir" required />
-
-        <label for="password" class="mt-4">Password:</label>
-        <input id="password" type="password" name="password" required autocomplete="new-password" />
-
-        <label for="confirm" class="mt-4">Konfirmasi Password:</label>
-        <input id="confirm" type="password" name="confirm" required autocomplete="new-password" />
-
-        <button type="submit">Daftar</button>
-    </form>
-    <p>Sudah punya akun? <a href="login.php">Login di sini</a></p>
-</section>
+            <p class="text-center mt-3">Sudah punya akun? <a href="login.php">Login di sini</a></p>
+        </div>
+    </div>
+</div>
 </body>
 </html>
