@@ -1,24 +1,26 @@
 <?php
 session_start();
-if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
+if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "karyawan") {
     header("Location: login.php");
     exit();
 }
-$admin = $_SESSION["NIK"];
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard Admin</title>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 min-h-screen flex">
-    <?php include __DIR__ . '/assets/template/admin.php'; ?>
-    <main class="flex-1 p-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Halo admin 👋</h2>
-        <p class="text-gray-600 mb-8">Selamat datang, <span class="font-semibold text-purple-700"><?= htmlspecialchars($admin) ?></span>!</p>
-        <!-- Konten dashboard di sini -->
-    </main>
-</body>
-</html>
+
+<?php include '../includes/header.php'; ?>
+
+<div class="container py-5">
+  <div class="card shadow-sm rounded-4 p-4">
+    <h3 class="text-center mb-3 fw-semibold">🛠️ Dashboard Admin</h3>
+    <p class="text-center">Halo admin, selamat datang: <strong><?= htmlspecialchars($_SESSION["NIK"]) ?></strong></p>
+
+    <div class="list-group list-group-flush mt-4">
+      <a href="../admin/usermanage/manage_user.php" class="list-group-item list-group-item-action">🔧 Manage User</a>
+      <a href="../admin/coursemanage/manage_course.php" class="list-group-item list-group-item-action">📚 Manage Course</a>
+      <a href="../admin/eventmanage/manage_event.php" class="list-group-item list-group-item-action">🎉 Manage Event</a>
+      <a href="../admin/sertifikatmanage/manage_sertifikat.php" class="list-group-item list-group-item-action">🏆 Manage Sertifikat</a>
+      <a href="logout.php" class="list-group-item list-group-item-action text-danger">🚪 Logout</a>
+    </div>
+  </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
