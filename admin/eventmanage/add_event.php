@@ -1,64 +1,54 @@
 <?php
+// === FILE: add_event.php ===
 session_start();
 require_once '../../config/database.php';
-require_once '../helpers/id_generator.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
     exit();
 }
 
+function generateRandomID($prefix, $length = 4) {
+    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    return $prefix . $randomString;
+}
+
 $error = "";
 $success = "";
-
 $queryKaryawan = "SELECT NIK, First_Name, Last_Name FROM karyawan";
 $resultKaryawan = mysqli_query($conn, $queryKaryawan);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateIDUnique($conn, 'event', 'ID_event', 'EV', 4);         // EVxxxx
-    $sertif_id = generateIDUnique($conn, 'sertifikat', 'ID_Sertifikat', 'SRF', 4); // SRFxxxx
-
+    $id = generateRandomID("EV");
     $nama = $_POST["Nama_Event"];
     $jenis = $_POST["Jenis_Event"];
-    $deskripsi = trim($_POST["Deskripsi_Event"]);
+    $deskripsi = $_POST["Deskripsi_Event"];
     $lokasi = $_POST["Lokasi_Acara"];
     $biaya = $_POST["Biaya_Pendaftaran"];
     $kuota = $_POST["Kuota_Pendaftaran"];
     $mulai = $_POST["tanggal_mulai_event"];
     $akhir = $_POST["tanggal_berakhir_event"];
+    $sertifikat = $_POST["Sertifikat_ID_Sertifikat"];
     $nik = $_POST["Karyawan_NIK"];
 
-    if ($deskripsi === "") $deskripsi = null;
-
-    if ($nama && $jenis && $lokasi && $biaya && $kuota && $mulai && $akhir && $nik) {
-        // 1. Insert ke sertifikat dulu
-        $sertif_nama = "Event: " . $nama;
-        $stmtSertif = $conn->prepare("INSERT INTO sertifikat (ID_Sertifikat, Nama_Sertifikat) VALUES (?, ?)");
-        $stmtSertif->bind_param("ss", $sertif_id, $sertif_nama);
-        $insertSertif = $stmtSertif->execute();
-
-        if (!$insertSertif) {
-            $error = "Gagal membuat sertifikat: " . $stmtSertif->error;
-        } else {
-            // 2. Insert event
-            $query = "INSERT INTO event 
-                (ID_event, Nama_Event, Jenis_Event, Deskripsi_Event, Lokasi_Acara, Biaya_Pendaftaran, Kuota_Pendaftaran,
-                 tanggal_mulai_event, tanggal_berakhir_event, Sertifikat_ID_Sertifikat, Karyawan_NIK)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("sssssdissss", $id, $nama, $jenis, $deskripsi, $lokasi, $biaya, $kuota, $mulai, $akhir, $sertif_id, $nik);
-
-            if ($stmt->execute()) {
-                $success = "Event berhasil ditambahkan! Sertifikat ID: $sertif_id";
-            } else {
-                $error = "Gagal menambahkan event: " . $stmt->error;
-            }
-        }
-    } else {
-        $error = "Pastikan semua field terisi dengan benar.";
+    if (trim($deskripsi) === "") {
+    $deskripsi = null;
     }
 
-    // refresh ulang data karyawan biar form tetap bisa kebaca
+    $query = "INSERT INTO event VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssssdissss", $id, $nama, $jenis, $deskripsi, $lokasi, $biaya, $kuota, $mulai, $akhir, $sertifikat, $nik);
+
+    if ($stmt->execute()) {
+        $success = "Event berhasil ditambahkan!";
+    } else {
+        $error = "Gagal menambahkan event: " . $stmt->error;
+    }
+
     $resultKaryawan = mysqli_query($conn, $queryKaryawan);
 }
 ?>
@@ -102,6 +92,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <label>Tanggal Berakhir:</label><br>
     <input type="date" name="tanggal_berakhir_event" required><br>
+
+    <label>ID Sertifikat (sementara default "blm ter assign"):</label><br>
+    <input type="text" name="Sertifikat_ID_Sertifikat" value="notassign" readonly><br>
 
     <label>Karyawan (NIK):</label><br>
     <select name="Karyawan_NIK" required>
