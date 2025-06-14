@@ -34,23 +34,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
-<head><title>Tambah Challenge</title></head>
-<body>
-    <h2>Tambah Challenge</h2>
-    <?php if ($error) echo "<p style='color:red;'>$error</p>"; ?>
-    <?php if ($success) echo "<p style='color:green;'>$success</p>"; ?>
-    <form method="post">
-        <label>Nama:</label><br><input type="text" name="nama_challenge" required><br>
-        <label>Deskripsi:</label><br><textarea name="deskripsi" required></textarea><br>
-        <label>Tanggal Mulai:</label><br><input type="date" name="tanggal_mulai" required><br>
-        <label>Tanggal Berakhir:</label><br><input type="date" name="tanggal_berakhir" required><br>
-        <label>Kuota Pemenang:</label><br><input type="number" name="kuota_pemenang" required><br>
-        <label>Hadiah:</label><br><input type="text" name="hadiah" required><br><br>
-        <button type="submit">Tambah</button>
-    </form>
-    <br><a href="manage_challenge.php">Kembali</a>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Challenge - CodingIn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: "Inter", sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+    <?php include '../../includes/admin_sidebar.php'; ?>
+    <main class="flex-1 p-8">
+        <div class="bg-white rounded-xl shadow p-8 w-full max-w-3xl ml-0 md:ml-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-purple-700">Tambah Challenge</h2>
+                <a href="manage_challenge.php" class="text-purple-700 hover:underline text-sm">← Kembali</a>
+            </div>
+            <?php if ($error): ?>
+                <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm"><?= $error ?></div>
+            <?php endif; ?>
+            <?php if ($success): ?>
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm"><?= $success ?></div>
+            <?php endif; ?>
+            <form method="post" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nama Challenge</label>
+                    <input type="text" name="nama_challenge" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Deskripsi</label>
+                    <textarea name="deskripsi" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" name="tanggal_mulai" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tanggal Berakhir</label>
+                        <input type="date" name="tanggal_berakhir" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Kuota Pemenang</label>
+                        <input type="number" name="kuota_pemenang" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Hadiah</label>
+                        <input type="text" name="hadiah" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="submit" class="bg-purple-700 text-white px-6 py-2 rounded-full font-semibold hover:bg-purple-800 transition">Tambah</button>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

@@ -14,7 +14,7 @@ if ($tipe == "course") {
     $query = "
         SELECT 
             u.ID AS User_ID,
-            CONCAT(u.First_Name, ' ', u.Last_Name) AS Nama,
+            CONCAT(COALESCE(u.First_Name, ''), ' ', COALESCE(u.Last_Name, '')) AS Nama,
             c.Nama_course,
             s.ID_Sertifikat,
             s.Nama_Sertifikat,
@@ -31,7 +31,7 @@ if ($tipe == "course") {
     $query = "
         SELECT 
             u.ID AS User_ID,
-            CONCAT(u.First_Name, ' ', u.Last_Name) AS Nama,
+            CONCAT(COALESCE(u.First_Name, ''), ' ', COALESCE(u.Last_Name, '')) AS Nama,
             e.Nama_Event,
             s.ID_Sertifikat,
             s.Nama_Sertifikat,
@@ -49,110 +49,92 @@ if ($tipe == "course") {
 $stmt = $pdo->query($query);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Manajemen Sertifikat User</title>
+  <title>Manajemen Sertifikat User - CodingIn</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    }
-    .card-container {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 24px;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    h2 {
-      font-weight: 600;
-    }
-    .btn-action {
-      font-size: 0.875rem;
-      padding: 2px 8px;
-    }
+    body { font-family: "Inter", sans-serif; }
   </style>
 </head>
-<body>
-
-<div class="container py-5 d-flex justify-content-center">
-  <div class="card-container w-100" style="max-width: 1000px;">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>🎓 Manajemen Sertifikat User (<?= ucfirst($tipe) ?> Based)</h2>
-      <div>
-        <a href="?tipe=event" class="btn btn-outline-secondary btn-sm me-1">🔖 Event</a>
-        <a href="?tipe=course" class="btn btn-outline-secondary btn-sm">📚 Course</a>
+<body class="bg-gray-50 min-h-screen flex">
+  <?php include '../../includes/admin_sidebar.php'; ?>
+  <main class="flex-1 p-8">
+    <div class="bg-white rounded-xl shadow p-8 w-full max-w-5xl ml-0 md:ml-12">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <h2 class="text-2xl font-bold text-purple-700">🎓 Manajemen Sertifikat User (<?= ucfirst($tipe) ?> Based)</h2>
+        <div class="flex gap-2">
+          <a href="?tipe=event" class="px-3 py-1 rounded-full text-sm font-semibold <?= $tipe == 'event' ? 'bg-purple-700 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200' ?>">🔖 Event</a>
+          <a href="?tipe=course" class="px-3 py-1 rounded-full text-sm font-semibold <?= $tipe == 'course' ? 'bg-purple-700 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200' ?>">📚 Course</a>
+        </div>
+      </div>
+      <div class="mb-4">
+        <a href="add_sertifuser.php" class="inline-block bg-purple-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-purple-800 transition text-sm shadow">
+          + Assign Sertifikat
+        </a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-lg text-xs sm:text-sm">
+          <thead class="bg-purple-50">
+            <tr>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">No</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">User ID</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">Nama</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">Sertifikat</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">ID Sertifikat</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">Status</th>
+              <th class="py-3 px-4 font-semibold text-gray-700 border-b">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <?php $no = 1; foreach ($rows as $row): ?>
+              <?php $sudah_terbit = !is_null($row['tanggal_diberikan']); ?>
+              <tr class="hover:bg-purple-50">
+                <td class="py-3 px-4"><?= $no++ ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($row['User_ID']) ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($row['Nama']) ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($row['Nama_Sertifikat']) ?></td>
+                <td class="py-3 px-4"><?= htmlspecialchars($row['ID_Sertifikat']) ?></td>
+                <td class="py-3 px-4">
+                  <?php if ($sudah_terbit): ?>
+                    <span class="text-green-600 font-semibold">Sudah Diberikan</span><br>
+                    <small><?= htmlspecialchars($row['tanggal_diberikan']) ?></small>
+                  <?php else: ?>
+                    <span class="text-red-600 font-semibold">Belum</span>
+                  <?php endif; ?>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex gap-2">
+                    <?php if (!$sudah_terbit): ?>
+                      <form action="give_sertifuser.php" method="post" class="inline">
+                        <input type="hidden" name="user_id" value="<?= $row['User_ID'] ?>">
+                        <input type="hidden" name="sertif_id" value="<?= $row['ID_Sertifikat'] ?>">
+                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-green-700 transition">Terbitkan</button>
+                      </form>
+                    <?php else: ?>
+                      <form action="cancel_sertifuser.php" method="post" class="inline" onsubmit="return confirm('Yakin ingin mencabut sertifikat ini?');">
+                        <input type="hidden" name="user_id" value="<?= $row['User_ID'] ?>">
+                        <input type="hidden" name="sertif_id" value="<?= $row['ID_Sertifikat'] ?>">
+                        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-red-600 transition">Cabut</button>
+                      </form>
+                    <?php endif; ?>
+                  </div>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+            <?php if (empty($rows)): ?>
+              <tr>
+                <td colspan="7" class="text-center text-gray-400 py-6">Belum ada data sertifikat user.</td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="mb-3">
-      <a href="add_sertifuser.php" class="btn btn-primary btn-sm">+ Assign Sertifikat</a>
-    </div>
-
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>No</th>
-            <th>User ID</th>
-            <th>Nama</th>
-            <th>Sertifikat</th>
-            <th>ID Sertifikat</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php $no = 1; ?>
-          <?php foreach ($rows as $row): ?>
-            <?php $sudah_terbit = !is_null($row['tanggal_diberikan']); ?>
-            <tr>
-              <td><?= $no++ ?></td>
-              <td><?= htmlspecialchars($row['User_ID']) ?></td>
-              <td><?= htmlspecialchars($row['Nama']) ?></td>
-              <td><?= htmlspecialchars($row['Nama_Sertifikat']) ?></td>
-              <td><?= htmlspecialchars($row['ID_Sertifikat']) ?></td>
-              <td>
-                <?php if ($sudah_terbit): ?>
-                  <span class="text-success">Sudah Diberikan</span><br>
-                  <small><?= htmlspecialchars($row['tanggal_diberikan']) ?></small>
-                <?php else: ?>
-                  <span class="text-danger">Belum</span>
-                <?php endif; ?>
-              </td>
-              <td>
-                <?php if (!$sudah_terbit): ?>
-                  <form action="give_sertifuser.php" method="post" class="d-inline">
-                    <input type="hidden" name="user_id" value="<?= $row['User_ID'] ?>">
-                    <input type="hidden" name="sertif_id" value="<?= $row['ID_Sertifikat'] ?>">
-                    <button type="submit" class="btn btn-success btn-action">Terbitkan</button>
-                  </form>
-                <?php else: ?>
-                  <form action="cancel_sertifuser.php" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin mencabut sertifikat ini?');">
-                    <input type="hidden" name="user_id" value="<?= $row['User_ID'] ?>">
-                    <input type="hidden" name="sertif_id" value="<?= $row['ID_Sertifikat'] ?>">
-                    <button type="submit" class="btn btn-danger btn-action">Cabut</button>
-                  </form>
-                <?php endif; ?>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
-
+  </main>
 </body>
 </html>

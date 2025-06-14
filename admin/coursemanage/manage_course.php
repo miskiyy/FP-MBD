@@ -1,101 +1,83 @@
 <?php
 session_start();
-require_once('../../config/database.php'); // PDO tersedia di $pdo
+require_once '../../config/database.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
-
     exit();
 }
 
 $stmt = $pdo->query("SELECT * FROM courses");
-
 $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Manajemen Course</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        }
-        .card-container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
-            padding: 24px;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        h2 {
-            font-weight: 600;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(10px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-        .btn-action {
-            font-size: 0.875rem;
-            padding: 2px 8px;
-        }
-        .table-responsive th, .table-responsive td {
-            vertical-align: middle !important;
-        }
+        body { font-family: "Inter", sans-serif; }
     </style>
 </head>
-<body>
-
-    <div class="container py-5 d-flex justify-content-center">
-        <div class="card-container w-100" style="max-width: 1200px">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>📚 Manajemen Course</h2>
-                <a href="add_course.php" class="btn btn-primary btn-sm">+ Tambah Course</a>
+<body class="bg-gray-50 min-h-screen flex">
+    <?php include '../../includes/admin_sidebar.php'; ?>
+    <main class="flex-1 p-8">
+        <div class="bg-white rounded-xl shadow p-8 w-full max-w-6xl ml-0 md:ml-12">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-purple-700">Daftar Course</h2>
+                <a href="add_course.php" class="inline-block bg-purple-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-purple-800 transition text-sm shadow">
+                    + Tambah Course
+                </a>
             </div>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-lg text-xs sm:text-sm">
+                    <thead class="bg-purple-50">
                         <tr>
-                            <th>ID</th>
-                            <th>Nama</th>
-                            <th>Rating</th>
-                            <th>Tingkat Kesulitan</th>
-                            <th>ID Sertifikat</th>
-                            <th>NIK Karyawan</th>
-                            <th>Aksi</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">ID</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Nama</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Deskripsi</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Kategori</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Harga</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Karyawan</th>
+                            <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         <?php foreach ($courses as $row): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['ID_courses']) ?> </td>
-                                <td><?= htmlspecialchars($row['Nama_course']) ?> </td>
-                                <td><?= htmlspecialchars($row['Rating_course']) ?> </td>
-                                <td><?= htmlspecialchars($row['Tingkat_kesulitan']) ?> </td>
-                                <td><?= htmlspecialchars($row['Sertifikat_ID_sertifikat']) ?> </td>
-                                <td><?= htmlspecialchars($row['Karyawan_NIK']) ?> </td>
-                                <td>
-                                   <a href="edit_course.php?id=<?= urlencode($row['ID_courses']) ?>" 
-                                      class="btn btn-warning btn-sm btn-action">Edit</a> 
-                                   <a href="delete_course.php?id=<?= urlencode($row['ID_courses']) ?>" 
-                                      class="btn btn-danger btn-sm btn-action" 
-                                      onclick="return confirm('Yakin mau hapus course ini?');">
-                                      Hapus
-                                   </a>
+                            <tr class="hover:bg-purple-50">
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['ID_courses']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['Nama_course']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['Rating_course']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['Tingkat_kesulitan']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['Sertifikat_ID_sertifikat']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($row['Karyawan_NIK']) ?></td>
+                                <td class="py-3 px-4">
+                                    <div class="flex justify-center gap-x-2">
+                                        <a href="edit_course.php?id=<?= urlencode($row['ID_courses']) ?>"
+                                        class="inline-flex items-center justify-center bg-yellow-400 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-yellow-500 transition text-xs shadow-sm">
+                                            Edit
+                                        </a>
+                                        <a href="delete_course.php?id=<?= urlencode($row['ID_courses']) ?>"
+                                        class="inline-flex items-center justify-center bg-red-500 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-red-600 transition text-xs shadow-sm"
+                                        onclick="return confirm('Yakin hapus?')">
+                                            Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                        <?php if (empty($courses)): ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-gray-400 py-6">Belum ada course yang tersedia.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-
+    </main>
 </body>
 </html>

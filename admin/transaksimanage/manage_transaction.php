@@ -4,113 +4,93 @@ session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
-
     exit();
 }
 
 $stmt = $pdo->prepare("SELECT * FROM transaksi");
-
 $stmt->execute();
-
 $transaksis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Manajemen Transaksi</title>
+    <title>Manajemen Transaksi - CodingIn</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        }
-        .card-container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
-            padding: 24px;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        h2 {
-            font-weight: 600;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(10px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-        .btn-action {
-            font-size: 0.875rem;
-            padding: 2px 8px;
-        }
-        .table-responsive th, .table-responsive td {
-            vertical-align: middle !important;
-        }
+        body { font-family: "Inter", sans-serif; }
     </style>
 </head>
-<body>
-
-<div class="container py-5 d-flex justify-content-center">
-    <div class="card-container w-100" style="max-width: 1200px">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>📝 Manajemen Transaksi</h2>
-            <div>
-                <a href="add_transaksi.php" class="btn btn-primary btn-sm">+ Tambah Transaksi</a>
-                <!-- Tombol Laporan Transaksi jika memang diberlakukan -->
-                <!-- <a href="transaction_report.php" class="btn btn-secondary btn-sm">Cetak Laporan Transaksi</a> -->
+<body class="bg-gray-50 min-h-screen flex">
+    <?php include '../../includes/admin_sidebar.php'; ?>
+    <main class="flex-1 p-8">
+        <div class="bg-white rounded-xl shadow p-8 w-full max-w-7xl ml-0 md:ml-12">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-purple-700">📝 Manajemen Transaksi</h2>
+                <a href="add_transaksi.php" class="inline-block bg-purple-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-purple-800 transition text-sm shadow">
+                    + Tambah Transaksi
+                </a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-lg text-xs sm:text-sm">
+                    <thead class="bg-purple-50">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">ID Transaksi</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Tanggal Pemesanan</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Total Awal</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Redeem Code</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Diskon</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Total Akhir</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Status Pembayaran</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Metode Pembayaran</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Tanggal Dimulai</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Tanggal Berakhir</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">User</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Paket</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <?php foreach ($transaksis as $transaksi): ?>
+                            <tr class="hover:bg-purple-50">
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['ID_Transaksi']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Tanggal_Pemesanan']) ?></td>
+                                <td class="py-3 px-4">Rp <?= number_format($transaksi['Total_Awal'], 0, ',', '.') ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['REDEEM_CODE'] ?? '') ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Diskon'] ?? '') ?></td>
+                                <td class="py-3 px-4">Rp <?= number_format($transaksi['Total_Akhir'], 0, ',', '.') ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Status_Pembayaran']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Metode_Pembayaran']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Tanggal_Dimulai'] ?? '') ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Tanggal_Berakhir'] ?? '') ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['User_ID']) ?></td>
+                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Paket_ID_Paket']) ?></td>
+                                <td class="py-3 px-4">
+                                    <div class="flex gap-x-2">
+                                        <a href='edit_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>'
+                                           class='inline-flex items-center justify-center bg-yellow-400 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-yellow-500 transition text-xs shadow-sm'>
+                                            Edit
+                                        </a>
+                                        <a href='delete_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>'
+                                           class='inline-flex items-center justify-center bg-red-500 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-red-600 transition text-xs shadow-sm'
+                                           onclick='return confirm("Yakin?")'>
+                                            Hapus
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($transaksis)): ?>
+                            <tr>
+                                <td colspan="13" class="text-center text-gray-400 py-6">Belum ada transaksi.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID Transaksi</th>
-                        <th>Tanggal Pemesanan</th>
-                        <th>Total Awal</th>
-                        <th>Redeem Code</th>
-                        <th>Diskon</th>
-                        <th>Total Akhir</th>
-                        <th>Status Pembayaran</th>
-                        <th>Metode Pembayaran</th>
-                        <th>Tanggal Dimulai</th>
-                        <th>Tanggal Berakhir</th>
-                        <th>User</th>
-                        <th>Paket</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($transaksis as $transaksi): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($transaksi['ID_Transaksi']) ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Tanggal_Pemesanan']) ?> </td>
-                            <td>Rp <?= number_format($transaksi['Total_Awal'], 0, ',', '.') ?> </td>
-                            <td><?= htmlspecialchars($transaksi['REDEEM_CODE'] ?? '') ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Diskon'] ?? '') ?> </td>
-                            <td>Rp <?= number_format($transaksi['Total_Akhir'], 0, ',', '.') ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Status_Pembayaran']) ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Metode_Pembayaran']) ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Tanggal_Dimulai'] ?? '') ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Tanggal_Berakhir'] ?? '') ?> </td>
-                            <td><?= htmlspecialchars($transaksi['User_ID']) ?> </td>
-                            <td><?= htmlspecialchars($transaksi['Paket_ID_Paket']) ?> </td>
-                            <td>
-                                <a href='edit_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>' class='btn btn-warning btn-sm btn-action'>Edit</a>
-                                <a href='delete_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>' class='btn btn-danger btn-sm btn-action' onclick='return confirm("Yakin?")'>Hapus</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    </main>
 </body>
 </html>

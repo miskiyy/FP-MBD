@@ -4,25 +4,44 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "karyawan") {
     header("Location: login.php");
     exit();
 }
+require_once '../config/database.php';
+
+$firstName = '';
+$lastName = '';
+if (isset($_SESSION["NIK"])) {
+    $stmt = $pdo->prepare("SELECT First_Name, Last_Name FROM karyawan WHERE NIK = ?");
+    $stmt->execute([$_SESSION["NIK"]]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($data) {
+        $firstName = $data['First_Name'];
+        $lastName = $data['Last_Name'];
+    }
+}
 ?>
-
-<?php include '../includes/header.php'; ?>
-
-<div class="container py-5">
-  <div class="card shadow-sm rounded-4 p-4">
-    <h3 class="text-center mb-3 fw-semibold">🛠️ Dashboard Admin</h3>
-    <p class="text-center">Halo admin, selamat datang: <strong><?= htmlspecialchars($_SESSION["NIK"]) ?></strong></p>
-
-    <div class="list-group list-group-flush mt-4">
-      <a href="../admin/usermanage/manage_user.php" class="list-group-item list-group-item-action">🔧 Manage User</a>
-      <a href="../admin/paketmanage/manage_paket.php" class="list-group-item list-group-item-action">📦 Manage Paket</a>
-      <a href="../admin/coursemanage/manage_course.php" class="list-group-item list-group-item-action">📚 Manage Course</a>
-      <a href="../admin/eventmanage/manage_event.php" class="list-group-item list-group-item-action">🎉 Manage Event</a>
-      <a href="../admin/sertifikatmanage/manage_sertifikat.php" class="list-group-item list-group-item-action">🏆 Manage Sertifikat</a>
-      <a href="../admin/transaksimanage/manage_transaction.php" class="list-group-item list-group-item-action">💵 Manage Transaksi</a>
-      <a href="logout.php" class="list-group-item list-group-item-action text-danger">🚪 Logout</a>
-    </div>
-  </div>
-</div>
-
-<?php include '../includes/footer.php'; ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin - CodingIn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: "Inter", sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+    <?php include '../includes/admin_sidebar.php'; ?>
+    <main class="flex-1 p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Dashboard Admin</h2>
+        <p class="text-gray-600 mb-4">
+            Halo, <span class="font-semibold text-purple-700">
+                <?= htmlspecialchars(trim($firstName . ' ' . $lastName)) ?>
+            </span>! Selamat datang di dashboard admin CodingIn.
+        </p>
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Selamat datang di Dashboard Admin!</h3>
+            <p class="text-gray-600">Di sini kamu bisa mengelola event, peserta, dan data lainnya. Semangat dalam mengelola CodingIn!</p>
+    </main>
+</body>
+</html>
