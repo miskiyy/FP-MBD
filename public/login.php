@@ -35,37 +35,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <?php include '../includes/header.php'; ?>
-
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-5">
-      <div class="card p-4">
-        <h3 class="text-center mb-4">Login</h3>
-
+    <!-- Login Form -->
+    <main class="flex-1 flex items-center justify-center py-12 px-4">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-center text-purple-700 mb-2">Login ke CodingIn</h2>
+        <p class="text-center text-gray-500 mb-6 text-sm">Masuk untuk mulai belajar dan ikut event seru!</p>
         <?php if ($error): ?>
-          <div class="alert alert-danger"><?= $error ?></div>
+          <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm"><?= $error ?></div>
         <?php endif; ?>
-
-        <form method="POST">
-          <div class="mb-3">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" required>
+        <form method="POST" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <input type="email" name="email" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
           </div>
-          <div class="mb-3">
-            <label>Password</label>
-            <input type="password" name="password" class="form-control" required>
+          <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <input type="password" name="password" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
           </div>
-          <button type="submit" class="btn btn-primary w-100">Masuk</button>
+          <button type="submit" class="w-full bg-purple-700 text-white py-2 rounded-full font-semibold hover:bg-purple-800 transition">Masuk</button>
         </form>
-
-        <div class="text-center mt-3">
-          <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+        <div class="text-center mt-4 text-sm">
+          Belum punya akun?
+          <a href="register.php" class="text-purple-700 font-semibold hover:underline">Daftar di sini</a>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
+    </main>
 <?php include '../includes/footer.php'; ?>
