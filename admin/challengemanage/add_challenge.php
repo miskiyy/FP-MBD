@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/challenge.php';
+require_once '../helpers/id_generator.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -10,12 +12,10 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 $success = "";
 $error = "";
 
-function generateID() {
-    return "CR" . strtoupper(substr(md5(uniqid()), 0, 4));
-}
+$challengeModel = new Challenge($pdo);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateID();
+    $id = generateIDUnique($pdo, 'challenge', 'id_challenge', 'CR', 4);
     $nama = $_POST["nama_challenge"];
     $deskripsi = $_POST["deskripsi"];
     $mulai = $_POST["tanggal_mulai"];
@@ -23,14 +23,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $kuota = $_POST["kuota_pemenang"];
     $hadiah = $_POST["hadiah"];
 
-    $query = "INSERT INTO challenge VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssssis", $id, $nama, $deskripsi, $mulai, $akhir, $kuota, $hadiah);
+    $data = [$id, $nama, $deskripsi, $mulai, $akhir, $kuota, $hadiah];
 
-    if ($stmt->execute()) {
+    if ($challengeModel->addChallenge($data)) {
         $success = "Challenge berhasil ditambahkan!";
     } else {
-        $error = "Gagal menambahkan challenge: " . $stmt->error;
+        $error = "Gagal menambahkan challenge.";
     }
 }
 ?>

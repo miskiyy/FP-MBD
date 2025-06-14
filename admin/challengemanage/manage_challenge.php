@@ -1,14 +1,15 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/challenge.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
     exit();
 }
 
-$stmt = $pdo->query("SELECT * FROM challenge");
-$challenges = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$challengeModel = new Challenge($pdo);
+$challenges = $challengeModel->getAllChallenges();
 ?>
 
 <!DOCTYPE html>

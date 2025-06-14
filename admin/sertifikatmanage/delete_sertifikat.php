@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/sertifikat.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -13,9 +14,8 @@ if (!isset($_GET["id"])) {
 }
 
 $id = $_GET["id"];
-$stmt = $conn->prepare("DELETE FROM sertifikat WHERE ID_Sertifikat = ?");
-$stmt->bind_param("s", $id);
-$stmt->execute();
+$sertifikatModel = new Sertifikat($pdo);
+$sertifikatModel->delete($id);
 
 header("Location: manage_sertifikat.php");
 exit();

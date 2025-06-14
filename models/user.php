@@ -6,6 +6,12 @@ class User {
         $this->pdo = $pdo;
     }
 
+    public function getUserById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE ID = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
     public function getAllUsers() {
         $stmt = $this->pdo->query("SELECT * FROM user");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -21,6 +27,16 @@ class User {
         $stmt = $this->pdo->prepare("INSERT INTO user 
             (ID, First_Name, Last_Name, Jenis_kelamin, Pekerjaan, Kota, Negara, Nomor_Telepon, Email, Tentang_Saya, Tanggal_Lahir, password) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        return $stmt->execute($data);
+    }
+
+    public function updateUserFull($data) {
+        $stmt = $this->pdo->prepare("UPDATE user SET 
+            First_Name = ?, Last_Name = ?, Jenis_kelamin = ?, 
+            Pekerjaan = ?, Kota = ?, Negara = ?, 
+            Nomor_Telepon = ?, Email = ?, Tentang_Saya = ?, 
+            Tanggal_Lahir = ?, password = ?
+            WHERE ID = ?");
         return $stmt->execute($data);
     }
 

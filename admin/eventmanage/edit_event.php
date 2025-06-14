@@ -1,61 +1,36 @@
 <?php
-session_start();
+require_once '../../models/event.php';
 require_once '../../config/database.php';
-
-if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
-    header("Location: ../../public/login.php");
-    exit();
-}
-
-$error = "";
-$success = "";
-
-$queryKaryawan = "SELECT NIK, First_Name, Last_Name FROM karyawan";
-$resultKaryawan = mysqli_query($conn, $queryKaryawan);
+$eventModel = new Event($pdo);
 
 $id = $_SERVER["REQUEST_METHOD"] == "POST" ? $_POST["ID_event"] : $_GET["id"];
-
-// Ambil data event
-$query = "SELECT * FROM event WHERE ID_event = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$event = $result->fetch_assoc();
+$event = $eventModel->getById($id);
+$stmtKaryawan = $pdo->query("SELECT NIK, First_Name, Last_Name FROM karyawan");
+$karyawans = $stmtKaryawan->fetchAll(PDO::FETCH_ASSOC);
+$error = "";
+$success = "";
 
 if (!$event) {
     $error = "Event tidak ditemukan.";
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nama = $_POST["Nama_Event"];
-    $jenis = $_POST["Jenis_Event"];
-    $deskripsi = trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"];
-    $lokasi = $_POST["Lokasi_Acara"];
-    $biaya = $_POST["Biaya_Pendaftaran"];
-    $kuota = $_POST["Kuota_Pendaftaran"];
-    $mulai = $_POST["tanggal_mulai_event"];
-    $akhir = $_POST["tanggal_berakhir_event"];
-    $sertifikat = $_POST["Sertifikat_ID_Sertifikat"];
-    $nik = $_POST["Karyawan_NIK"];
-
-    $queryUpdate = "UPDATE event SET Nama_Event=?, Jenis_Event=?, Deskripsi_Event=?, Lokasi_Acara=?, Biaya_Pendaftaran=?, Kuota_Pendaftaran=?, tanggal_mulai_event=?, tanggal_berakhir_event=?, Sertifikat_ID_Sertifikat=?, Karyawan_NIK=? WHERE ID_Event=?";
-    $stmtUpdate = $conn->prepare($queryUpdate);
-    $stmtUpdate->bind_param("sssssdissss", $nama, $jenis, $deskripsi, $lokasi, $biaya, $kuota, $mulai, $akhir, $sertifikat, $nik, $id);
-
-    if ($stmtUpdate->execute()) {
+    $data = [
+        $_POST["Nama_Event"],
+        $_POST["Jenis_Event"],
+        trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"],
+        $_POST["Lokasi_Acara"],
+        $_POST["Biaya_Pendaftaran"],
+        $_POST["Kuota_Pendaftaran"],
+        $_POST["tanggal_mulai_event"],
+        $_POST["tanggal_berakhir_event"],
+        $_POST["Sertifikat_ID_Sertifikat"],
+        $_POST["Karyawan_NIK"],
+        $id
+    ];
+    if ($eventModel->update($data)) {
         $success = "Event berhasil diperbarui!";
-        // Refresh data
-        $event["Nama_Event"] = $nama;
-        $event["Jenis_Event"] = $jenis;
-        $event["Deskripsi_Event"] = $deskripsi;
-        $event["Lokasi_Acara"] = $lokasi;
-        $event["Biaya_Pendaftaran"] = $biaya;
-        $event["Kuota_Pendaftaran"] = $kuota;
-        $event["tanggal_mulai_event"] = $mulai;
-        $event["tanggal_berakhir_event"] = $akhir;
-        $event["Sertifikat_ID_Sertifikat"] = $sertifikat;
-        $event["Karyawan_NIK"] = $nik;
+        $event = $eventModel->getById($id);
     } else {
-        $error = "Gagal update: " . $stmtUpdate->error;
+        $error = "Gagal update event.";
     }
 }
 ?>
@@ -147,13 +122,11 @@ if (!$event) {
                     <label class="block text-sm font-medium mb-1">Karyawan (NIK)</label>
                     <select name="Karyawan_NIK" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Karyawan --</option>
-                        <?php
-                        mysqli_data_seek($resultKaryawan, 0);
-                        while ($row = mysqli_fetch_assoc($resultKaryawan)): ?>
-                            <option value="<?= $row['NIK'] ?>" <?= $event['Karyawan_NIK'] == $row['NIK'] ? 'selected' : '' ?>>
+                        <?php foreach ($karyawans as $row): ?>
+                            <option value="<?= $row['NIK'] ?>">
                                 <?= htmlspecialchars($row['NIK']) ?> - <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
                             </option>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="flex justify-end mt-6">

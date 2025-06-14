@@ -1,14 +1,15 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/event.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
     exit();
 }
 
-$stmt = $pdo->query("SELECT * FROM event");
-$events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$eventModel = new Event($pdo);
+$events = $eventModel->getAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">

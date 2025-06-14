@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/user.php';
 require_once '../helpers/id_generator.php';
 session_start();
 
@@ -11,30 +12,32 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 $error = "";
 $success = "";
 
+$userModel = new User($pdo);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateIDUnique($conn, 'user', 'ID', 'US', 4); // Contoh: USX1Y2
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $jk = $_POST['jk'];
-    $pekerjaan = $_POST['pekerjaan'];
-    $kota = $_POST['kota'];
-    $negara = $_POST['negara'];
-    $telepon = $_POST['telepon'];
-    $email = $_POST['email'];
-    $tentang = $_POST['tentang'];
-    $tanggal_lahir = $_POST['tanggal_lahir'];
-    $password = $_POST['password'];
-
-    $query = "INSERT INTO user (ID, First_Name, Last_Name, Jenis_kelamin, Pekerjaan, Kota, Negara, Nomor_Telepon, Email, Tentang_Saya, Tanggal_Lahir, password)
-              VALUES ('$id', '$fname', '$lname', '$jk', '$pekerjaan', '$kota', '$negara', '$telepon', '$email', '$tentang', '$tanggal_lahir', '$password')";
-
-    if (mysqli_query($conn, $query)) {
+    $id = generateIDUnique($pdo, 'user', 'ID', 'US', 4);
+    $data = [
+        $id,
+        $_POST['fname'],
+        $_POST['lname'],
+        $_POST['jk'],
+        $_POST['pekerjaan'],
+        $_POST['kota'],
+        $_POST['negara'],
+        $_POST['telepon'],
+        $_POST['email'],
+        $_POST['tentang'],
+        $_POST['tanggal_lahir'],
+        password_hash($_POST['password'], PASSWORD_DEFAULT)
+    ];
+    if ($userModel->addUser($data)) {
         $success = "User berhasil ditambahkan!";
     } else {
-        $error = "Gagal menambah user: " . mysqli_error($conn);
+        $error = "Gagal menambah user.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

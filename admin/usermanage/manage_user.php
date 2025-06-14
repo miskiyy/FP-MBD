@@ -1,14 +1,15 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/user.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "karyawan") {
     header("Location: ../../public/login.php");
     exit();
 }
 
-$stmt = $pdo->query("SELECT * FROM user");
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$userModel = new User($pdo);
+$users = $userModel->getAllUsers();
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +27,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body class="bg-gray-50 min-h-screen flex">
   <?php include '../../includes/admin_sidebar.php'; ?>
   <main class="flex-1 p-8">
-    <div class="bg-white rounded-xl shadow p-8 w-full max-w-4xl ml-0 md:ml-12">
+    <div class="bg-white rounded-xl shadow p-8 w-full max-w-full ml-0 md:ml-12">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <h2 class="text-2xl font-bold text-purple-700">📋 Daftar User</h2>
         <a href="add_user.php" class="inline-block bg-purple-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-purple-800 transition text-sm shadow">
@@ -40,6 +41,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">ID</th>
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Nama</th>
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Email</th>
+              <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Jenis Kelamin</th>
+              <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Nomor Telepon</th>
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Kota</th>
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Negara</th>
               <th class="py-3 px-4 text-left font-semibold text-gray-700 border-b">Aksi</th>
@@ -51,6 +54,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <td class="py-3 px-4"><?= htmlspecialchars($row['ID']) ?></td>
               <td class="py-3 px-4"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></td>
               <td class="py-3 px-4"><?= htmlspecialchars($row['Email']) ?></td>
+              <td class="py-3 px-4"><?= htmlspecialchars($row['Jenis_kelamin']) ?></td>
+              <td class="py-3 px-4"><?= htmlspecialchars($row['Nomor_Telepon']) ?></td>
               <td class="py-3 px-4"><?= htmlspecialchars($row['Kota']) ?></td>
               <td class="py-3 px-4"><?= htmlspecialchars($row['Negara']) ?></td>
               <td class="py-3 px-4">

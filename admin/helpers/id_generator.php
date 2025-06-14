@@ -1,22 +1,10 @@
 <?php
-function generateIDUnique($conn, $table, $column, $prefix, $length = 4) {
+function generateIDUnique($pdo, $table, $col, $prefix, $length = 4) {
     do {
-        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        $id = $prefix . $randomString;
-
-        // Cek ke database
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM $table WHERE $column = ?");
-        $stmt->bind_param("s", $id);
-        $stmt->execute();
-        $stmt->bind_result($count);
-        $stmt->fetch();
-        $stmt->close();
+        $id = $prefix . strtoupper(bin2hex(random_bytes($length)));
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM $table WHERE $col = ?");
+        $stmt->execute([$id]);
+        $count = $stmt->fetchColumn();
     } while ($count > 0);
-
     return $id;
 }
-?>

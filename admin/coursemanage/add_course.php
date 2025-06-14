@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/course.php';
+require_once '../../models/sertifikat.php';
 require_once '../helpers/id_generator.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -11,39 +13,36 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 $error = "";
 $success = "";
 
-$queryKaryawan = "SELECT NIK, First_Name, Last_Name FROM karyawan";
-$resultKaryawan = mysqli_query($conn, $queryKaryawan);
+// Ambil data karyawan untuk dropdown (PDO)
+$stmtKaryawan = $pdo->query("SELECT NIK, First_Name, Last_Name FROM karyawan");
+$karyawans = $stmtKaryawan->fetchAll(PDO::FETCH_ASSOC);
+
+$courseModel = new Course($pdo);
+$sertifikatModel = new Sertifikat($pdo);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateIDUnique($conn, 'courses', 'ID_courses', 'CRS', 4); // CRSxxxx
-    $sertif_id = generateIDUnique($conn, 'sertifikat', 'ID_Sertifikat', 'SRF', 4); // SRFxxxx
+    $id = generateIDUnique($pdo, 'courses', 'ID_courses', 'CRS', 4); // CRSxxxx
+    $sertif_id = generateIDUnique($pdo, 'sertifikat', 'ID_Sertifikat', 'SRF', 4); // SRFxxxx
 
     $nama = $_POST["Nama_course"];
     $rating = isset($_POST["Rating_course"]) ? $_POST["Rating_course"] : 0;
     $tingkat = $_POST["Tingkat_kesulitan"];
     $nik = $_POST["Karyawan_NIK"];
 
-    // Validasi
     if ($nama && $tingkat && $nik) {
-        // 1. Insert Sertifikat kosong dulu
-        $stmtSertif = $conn->prepare("INSERT INTO sertifikat (ID_Sertifikat, Nama_Sertifikat) VALUES (?, ?)");
+        // 1. Insert Sertifikat dulu
         $defaultNama = "Course: " . $nama;
-        $stmtSertif->bind_param("ss", $sertif_id, $defaultNama);
-        $sertifInserted = $stmtSertif->execute();
+        $sertifInserted = $sertifikatModel->add($defaultNama, null, $sertif_id);
 
         if (!$sertifInserted) {
-            $error = "Gagal membuat sertifikat: " . $stmtSertif->error;
+            $error = "Gagal membuat sertifikat.";
         } else {
             // 2. Insert Course
-            $stmt = $conn->prepare("INSERT INTO courses 
-                (ID_courses, Nama_course, Rating_course, Tingkat_kesulitan, Sertifikat_ID_sertifikat, Karyawan_NIK)
-                VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssdsss", $id, $nama, $rating, $tingkat, $sertif_id, $nik);
-
-            if ($stmt->execute()) {
+            $data = [$id, $nama, $rating, $tingkat, $sertif_id, $nik];
+            if ($courseModel->add($data)) {
                 $success = "Course berhasil ditambahkan! Sertifikat ID: $sertif_id";
             } else {
-                $error = "Gagal menambahkan course: " . $stmt->error;
+                $error = "Gagal menambahkan course.";
             }
         }
     } else {
@@ -106,13 +105,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label class="block text-sm font-medium mb-1">Karyawan (NIK)</label>
                     <select name="Karyawan_NIK" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Karyawan --</option>
-                        <?php
-                        mysqli_data_seek($resultKaryawan, 0);
-                        while ($row = mysqli_fetch_assoc($resultKaryawan)): ?>
+                        <?php foreach ($karyawans as $row): ?>
                             <option value="<?= $row['NIK'] ?>">
                                 <?= htmlspecialchars($row['NIK']) ?> - <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
                             </option>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="flex justify-end mt-6">

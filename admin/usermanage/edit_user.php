@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/user.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -8,9 +9,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
 }
 
 $id = $_GET['id'];
-$query = "SELECT * FROM user WHERE ID='$id'";
-$result = mysqli_query($conn, $query);
-$data = mysqli_fetch_assoc($result);
+$userModel = new User($pdo);
+$data = $userModel->getUserById($id);
 
 $error = "";
 $success = "";
@@ -28,22 +28,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tanggal_lahir = $_POST['tanggal_lahir'];
     $password = $_POST['password'];
 
-    $update = "UPDATE user SET 
-        First_Name='$fname', Last_Name='$lname', Jenis_kelamin='$jk', 
-        Pekerjaan='$pekerjaan', Kota='$kota', Negara='$negara', 
-        Nomor_Telepon='$telepon', Email='$email', Tentang_Saya='$tentang', 
-        Tanggal_Lahir='$tanggal_lahir', password='$password'
-        WHERE ID='$id'";
+    $updateData = [
+        $fname, $lname, $jk, $pekerjaan, $kota, $negara,
+        $telepon, $email, $tentang, $tanggal_lahir, $password, $id
+    ];
 
-    if (mysqli_query($conn, $update)) {
+    if ($userModel->updateUserFull($updateData)) {
         $success = "User berhasil diperbarui!";
-        // Refresh data
-        $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM user WHERE ID='$id'"));
+        $data = $userModel->getUserById($id);
     } else {
-        $error = "Gagal update: " . mysqli_error($conn);
+        $error = "Gagal update user.";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

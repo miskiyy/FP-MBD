@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/course.php';
+require_once '../../models/sertifikat.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -11,22 +13,24 @@ $id = $_SERVER["REQUEST_METHOD"] == "POST" ? $_POST["ID_courses"] : $_GET["id"];
 $error = "";
 $success = "";
 
-// Ambil data course
-$query = "SELECT * FROM courses WHERE ID_courses = ?";
-$queryKaryawan = "SELECT NIK, First_Name, Last_Name FROM karyawan";
-$resultKaryawan = mysqli_query($conn, $queryKaryawan);
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$course = $result->fetch_assoc();
+$courseModel = new Course($pdo);
+$sertifikatModel = new Sertifikat($pdo);
 
-$sertifikat = $conn->query("
+// Ambil data course
+$course = $courseModel->getById($id);
+
+// Ambil data karyawan untuk dropdown
+$stmtKaryawan = $pdo->query("SELECT NIK, First_Name, Last_Name FROM karyawan");
+$karyawans = $stmtKaryawan->fetchAll(PDO::FETCH_ASSOC);
+
+// Ambil data sertifikat untuk dropdown
+$stmtSertifikat = $pdo->query("
     SELECT ID_Sertifikat, Nama_Sertifikat
     FROM sertifikat
     WHERE ID_Sertifikat = 'notassig'
        OR Nama_Sertifikat NOT LIKE 'Event:%'
 ");
+$sertifikats = $stmtSertifikat->fetchAll(PDO::FETCH_ASSOC);
 
 if (!$course) {
     $error = "Course tidak ditemukan.";
@@ -37,20 +41,21 @@ if (!$course) {
     $sertifikat_id = $_POST["Sertifikat_ID_sertifikat"];
     $nik = $_POST["Karyawan_NIK"];
 
-    $queryUpdate = "UPDATE courses SET Nama_course = ?, Rating_course = ?, Tingkat_kesulitan = ?, Sertifikat_ID_sertifikat = ?, Karyawan_NIK = ? WHERE ID_courses = ?";
-    $stmtUpdate = $conn->prepare($queryUpdate);
-    $stmtUpdate->bind_param("sdssss", $nama, $rating, $tingkat, $sertifikat_id, $nik, $id);
+    $dataUpdate = [
+        $nama,
+        $rating,
+        $tingkat,
+        $sertifikat_id,
+        $nik,
+        $id
+    ];
 
-    if ($stmtUpdate->execute()) {
+    if ($courseModel->update($dataUpdate)) {
         $success = "Course berhasil diperbarui!";
         // Refresh data
-        $course["Nama_course"] = $nama;
-        $course["Rating_course"] = $rating;
-        $course["Tingkat_kesulitan"] = $tingkat;
-        $course["Sertifikat_ID_sertifikat"] = $sertifikat_id;
-        $course["Karyawan_NIK"] = $nik;
+        $course = $courseModel->getById($id);
     } else {
-        $error = "Gagal update: " . $stmtUpdate->error;
+        $error = "Gagal update course.";
     }
 }
 ?>
@@ -91,7 +96,7 @@ if (!$course) {
                 <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm"><?= $success ?></div>
             <?php endif; ?>
             <?php if ($course): ?>
-            <form method="post" action="edit_course.php?id=<?= $course['ID_courses'] ?>" class="space-y-4">
+            <form method="post" action="edit_course.php?id=<?= htmlspecialchars($course['ID_courses']) ?>" class="space-y-4">
                 <input type="hidden" name="ID_courses" value="<?= htmlspecialchars($course['ID_courses']) ?>">
 
                 <div>
@@ -107,28 +112,22 @@ if (!$course) {
                     <label class="block text-sm font-medium mb-1">Sertifikat</label>
                     <select name="Sertifikat_ID_sertifikat" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Sertifikat --</option>
-                        <?php
-                        // Reset pointer sertifikat
-                        $sertifikat->data_seek(0);
-                        while ($s = $sertifikat->fetch_assoc()): ?>
+                        <?php foreach ($sertifikats as $s): ?>
                             <option value="<?= $s['ID_Sertifikat'] ?>" <?= $course['Sertifikat_ID_sertifikat'] == $s['ID_Sertifikat'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($s['Nama_Sertifikat']) ?> (<?= htmlspecialchars($s['ID_Sertifikat']) ?>)
                             </option>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">Karyawan (NIK)</label>
                     <select name="Karyawan_NIK" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Karyawan --</option>
-                        <?php
-                        // Reset pointer karyawan
-                        mysqli_data_seek($resultKaryawan, 0);
-                        while ($row = mysqli_fetch_assoc($resultKaryawan)): ?>
+                        <?php foreach ($karyawans as $row): ?>
                             <option value="<?= $row['NIK'] ?>" <?= $course['Karyawan_NIK'] == $row['NIK'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($row['NIK']) ?> - <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
                             </option>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="flex justify-end mt-6">

@@ -1,14 +1,15 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/course.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
     exit();
 }
 
-$stmt = $pdo->query("SELECT * FROM courses");
-$courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$courseModel = new Course($pdo);
+$courses = $courseModel->getAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">

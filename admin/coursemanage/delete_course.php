@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/course.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -13,14 +14,12 @@ if (!isset($_GET["id"])) {
 }
 
 $id = $_GET["id"];
-$query = "DELETE FROM courses WHERE ID_courses = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $id);
+$courseModel = new Course($pdo);
 
-if ($stmt->execute()) {
+if ($courseModel->delete($id)) {
     header("Location: manage_course.php");
     exit();
 } else {
-    echo "Gagal menghapus course: " . $stmt->error;
+    echo "Gagal menghapus course.";
 }
 ?>

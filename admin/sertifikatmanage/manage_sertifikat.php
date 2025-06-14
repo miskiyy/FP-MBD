@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/sertifikat.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -7,9 +8,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     exit();
 }
 
-// Gunakan PDO
-$stmt = $pdo->query("SELECT * FROM sertifikat");
-$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sertifikatModel = new Sertifikat($pdo);
+$rows = $sertifikatModel->getAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">

@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/sertifuser.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -11,15 +12,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_id = $_POST["user_id"] ?? null;
     $sertif_id = $_POST["sertif_id"] ?? null;
 
-    if ($user_id && $sertif_id) {
-        $stmt = $conn->prepare("DELETE FROM sertifuser WHERE User_ID = ? AND Sertifikat_ID_Sertifikat = ?");
-        $stmt->bind_param("ss", $user_id, $sertif_id);
+    $sertifUserModel = new SertifUser($pdo);
 
-        if ($stmt->execute()) {
+    if ($user_id && $sertif_id) {
+        if ($sertifUserModel->delete($user_id, $sertif_id)) {
             header("Location: manage_sertifuser.php?success=deleted");
             exit();
         } else {
-            echo "Gagal menghapus: " . $stmt->error;
+            echo "Gagal menghapus sertifikat user.";
         }
     } else {
         echo "User ID atau Sertifikat ID tidak valid.";

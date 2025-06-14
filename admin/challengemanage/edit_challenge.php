@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/challenge.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -13,12 +14,8 @@ if (!isset($_GET["id"])) {
 }
 
 $id = $_GET["id"];
-$query = "SELECT * FROM challenge WHERE id_challenge = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$challenge = $result->fetch_assoc();
+$challengeModel = new Challenge($pdo);
+$challenge = $challengeModel->getChallengeById($id);
 
 if (!$challenge) {
     die("Challenge tidak ditemukan.");
@@ -35,14 +32,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $kuota = $_POST["kuota_pemenang"];
     $hadiah = $_POST["hadiah"];
 
-    $queryUpdate = "UPDATE challenge SET nama_challenge=?, deskripsi=?, tanggal_mulai=?, tanggal_berakhir=?, kuota_pemenang=?, hadiah=? WHERE id_challenge=?";
-    $stmtUpdate = $conn->prepare($queryUpdate);
-    $stmtUpdate->bind_param("ssssiss", $nama, $deskripsi, $mulai, $akhir, $kuota, $hadiah, $id);
+    $dataUpdate = [$nama, $deskripsi, $mulai, $akhir, $kuota, $hadiah, $id];
 
-    if ($stmtUpdate->execute()) {
+    if ($challengeModel->updateChallenge($dataUpdate)) {
         $success = "Berhasil diperbarui!";
+        // Refresh data
+        $challenge = $challengeModel->getChallengeById($id);
     } else {
-        $error = "Gagal update: " . $stmtUpdate->error;
+        $error = "Gagal update challenge.";
     }
 }
 ?>

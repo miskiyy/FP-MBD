@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../models/challenge.php';
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
     header("Location: ../../public/login.php");
@@ -13,11 +14,9 @@ if (!isset($_GET["id"])) {
 }
 
 $id = $_GET["id"];
-$query = "DELETE FROM challenge WHERE id_challenge = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $id);
-$stmt->execute();
+$challengeModel = new Challenge($pdo);
+
+$challengeModel->deleteChallenge($id);
 
 header("Location: manage_challenge.php");
 exit();
-?>

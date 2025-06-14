@@ -1,57 +1,41 @@
 <?php
-session_start();
+require_once '../../models/event.php';
 require_once '../../config/database.php';
-
-if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
-    header("Location: ../../public/login.php");
-    exit();
-}
-
-function generateRandomID($prefix, $length = 4) {
-    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, strlen($characters) - 1)];
-    }
-    return $prefix . $randomString;
-}
+require_once '../helpers/id_generator.php';
+$eventModel = new Event($pdo);
 
 $error = "";
 $success = "";
-$queryKaryawan = "SELECT NIK, First_Name, Last_Name FROM karyawan";
-$resultKaryawan = mysqli_query($conn, $queryKaryawan);
+$stmtKaryawan = $pdo->query("SELECT NIK, First_Name, Last_Name FROM karyawan");
+$karyawans = $stmtKaryawan->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = generateRandomID("EV");
-    $nama = $_POST["Nama_Event"];
-    $jenis = $_POST["Jenis_Event"];
-    $deskripsi = trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"];
-    $lokasi = $_POST["Lokasi_Acara"];
-    $biaya = $_POST["Biaya_Pendaftaran"];
-    $kuota = $_POST["Kuota_Pendaftaran"];
-    $mulai = $_POST["tanggal_mulai_event"];
-    $akhir = $_POST["tanggal_berakhir_event"];
-    $sertifikat = $_POST["Sertifikat_ID_Sertifikat"];
-    $nik = $_POST["Karyawan_NIK"];
-
-    $query = "INSERT INTO event VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssssdissss", $id, $nama, $jenis, $deskripsi, $lokasi, $biaya, $kuota, $mulai, $akhir, $sertifikat, $nik);
-
-    if ($stmt->execute()) {
+    $id = generateIDUnique($pdo, 'event', 'ID_event', 'EV', 4);
+    $data = [
+        $id,
+        $_POST["Nama_Event"],
+        $_POST["Jenis_Event"],
+        trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"],
+        $_POST["Lokasi_Acara"],
+        $_POST["Biaya_Pendaftaran"],
+        $_POST["Kuota_Pendaftaran"],
+        $_POST["tanggal_mulai_event"],
+        $_POST["tanggal_berakhir_event"],
+        $_POST["Sertifikat_ID_Sertifikat"],
+        $_POST["Karyawan_NIK"]
+    ];
+    if ($eventModel->add($data)) {
         $success = "Event berhasil ditambahkan!";
     } else {
-        $error = "Gagal menambahkan event: " . $stmt->error;
+        $error = "Gagal menambahkan event.";
     }
-
-    $resultKaryawan = mysqli_query($conn, $queryKaryawan);
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Tambah Event - CodingIn</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>Tambah Event - CodingIn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -134,13 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label class="block text-sm font-medium mb-1">Karyawan (NIK)</label>
                     <select name="Karyawan_NIK" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Karyawan --</option>
-                        <?php
-                        mysqli_data_seek($resultKaryawan, 0);
-                        while ($row = mysqli_fetch_assoc($resultKaryawan)): ?>
-                            <option value="<?= $row['NIK'] ?>">
-                                <?= htmlspecialchars($row['NIK']) ?> - <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
-                            </option>
-                        <?php endwhile; ?>
+                    <?php foreach ($karyawans as $row): ?>
+                        <option value="<?= $row['NIK'] ?>">
+                            <?= htmlspecialchars($row['NIK']) ?> - <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
+                        </option>
+                    <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="flex justify-end mt-6">

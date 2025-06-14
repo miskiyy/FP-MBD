@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once '../../models/sertifikat.php';
 session_start();
 
 if (!isset($_SESSION["role"]) || $_SESSION["role"] != "karyawan") {
@@ -12,12 +13,9 @@ if (!isset($_GET["id"])) {
     exit();
 }
 
+$sertifikatModel = new Sertifikat($pdo);
 $id = $_GET["id"];
-$stmt = $conn->prepare("SELECT * FROM sertifikat WHERE ID_Sertifikat = ?");
-$stmt->bind_param("s", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$sertif = $result->fetch_assoc();
+$sertif = $sertifikatModel->getById($id);
 
 if (!$sertif) {
     echo "Sertifikat tidak ditemukan.";
@@ -48,18 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    if (!$error) {
-        $stmtUpdate = $conn->prepare("UPDATE sertifikat SET Nama_Sertifikat=?, sertif_template=? WHERE ID_Sertifikat=?");
-        $stmtUpdate->bind_param("sss", $nama, $templatePath, $id);
-
-        if ($stmtUpdate->execute()) {
-            $success = "Sertifikat berhasil diperbarui!";
-            // Refresh data
-            $sertif['Nama_Sertifikat'] = $nama;
-            $sertif['sertif_template'] = $templatePath;
-        } else {
-            $error = "Gagal update: " . $stmtUpdate->error;
-        }
+    if ($sertifikatModel->update($id, $nama, $templatePath)) {
+        $success = "Sertifikat berhasil diperbarui!";
+        $sertif = $sertifikatModel->getById($id);
+    } else {
+        $error = "Gagal update.";
     }
 }
 ?>
