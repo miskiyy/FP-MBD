@@ -6,7 +6,7 @@ if (!isset($_SESSION["user_id"])) {
 }
 ?>
 
-<?php include '../includes/header.php'; ?>
+<?php include '../includes/header_user.php'; ?>
 
 <div class="container py-5">
   <div class="card shadow-sm rounded-4 p-4 text-center">
@@ -38,4 +38,4 @@ if (!isset($_SESSION["user_id"])) {
   </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer_user.php'; ?>

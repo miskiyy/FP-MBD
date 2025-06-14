@@ -6,7 +6,7 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 require_once '../config/database.php';
-include '../includes/header.php';
+include '../includes/header_user.php';
 
 $user_id = $_SESSION["user_id"];
 
@@ -46,4 +46,4 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <?php endif; ?>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer_user.php'; ?>
