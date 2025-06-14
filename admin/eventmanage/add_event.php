@@ -1,8 +1,11 @@
 <?php
 require_once '../../models/event.php';
+require_once '../../models/sertifikat.php';
 require_once '../../config/database.php';
 require_once '../helpers/id_generator.php';
+
 $eventModel = new Event($pdo);
+$sertifikatModel = new Sertifikat($pdo);
 
 $error = "";
 $success = "";
@@ -11,31 +14,52 @@ $karyawans = $stmtKaryawan->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = generateIDUnique($pdo, 'event', 'ID_event', 'EV', 4);
-    $data = [
-        $id,
-        $_POST["Nama_Event"],
-        $_POST["Jenis_Event"],
-        trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"],
-        $_POST["Lokasi_Acara"],
-        $_POST["Biaya_Pendaftaran"],
-        $_POST["Kuota_Pendaftaran"],
-        $_POST["tanggal_mulai_event"],
-        $_POST["tanggal_berakhir_event"],
-        $_POST["Sertifikat_ID_Sertifikat"],
-        $_POST["Karyawan_NIK"]
-    ];
-    if ($eventModel->add($data)) {
-        $success = "Event berhasil ditambahkan!";
+    $sertif_id = generateIDUnique($pdo, 'sertifikat', 'ID_Sertifikat', 'SRF', 4);
+
+    $nama_event = $_POST["Nama_Event"];
+    $jenis_event = $_POST["Jenis_Event"];
+    $deskripsi = trim($_POST["Deskripsi_Event"]) === "" ? null : $_POST["Deskripsi_Event"];
+    $lokasi = $_POST["Lokasi_Acara"];
+    $biaya = $_POST["Biaya_Pendaftaran"];
+    $kuota = $_POST["Kuota_Pendaftaran"];
+    $mulai = $_POST["tanggal_mulai_event"];
+    $akhir = $_POST["tanggal_berakhir_event"];
+    $nik = $_POST["Karyawan_NIK"];
+
+    // 1. Insert Sertifikat dulu
+    $defaultNama = "Event: " . $nama_event;
+    $sertifInserted = $sertifikatModel->add($defaultNama, null, $sertif_id);
+
+    if (!$sertifInserted) {
+        $error = "Gagal membuat sertifikat.";
     } else {
-        $error = "Gagal menambahkan event.";
+        // 2. Insert Event
+        $data = [
+            $id,
+            $nama_event,
+            $jenis_event,
+            $deskripsi,
+            $lokasi,
+            $biaya,
+            $kuota,
+            $mulai,
+            $akhir,
+            $sertif_id,
+            $nik
+        ];
+        if ($eventModel->add($data)) {
+            $success = "Event berhasil ditambahkan! Sertifikat ID: $sertif_id";
+        } else {
+            $error = "Gagal menambahkan event.";
+        }
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <title>Tambah Event - CodingIn</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Event - CodingIn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -109,10 +133,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label class="block text-sm font-medium mb-1">Tanggal Berakhir</label>
                         <input type="date" name="tanggal_berakhir_event" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200" required>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">ID Sertifikat (default: "notassign")</label>
-                    <input type="text" name="Sertifikat_ID_Sertifikat" value="notassign" readonly class="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">Karyawan (NIK)</label>

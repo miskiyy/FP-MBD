@@ -13,38 +13,42 @@ $error = "";
 $sertifUserModel = new SertifUser($pdo);
 $jenis = $_GET['jenis'] ?? 'event';
 
-// Ambil data user dan sertifikat untuk dropdown (kode kamu sebelumnya di sini)
+// Ambil data user-event/user-course yang eligible
 if ($jenis === 'event') {
+    // User-event yang belum dapat sertifikat event tsb
     $users = $pdo->query("
-        SELECT u.ID, CONCAT(u.First_Name, ' ', u.Last_Name) AS Nama
-        FROM user u
-        JOIN user_event ue ON ue.User_ID = u.ID
-        JOIN event e ON e.ID_event = ue.Event_ID_Event
+        SELECT 
+            u.ID AS user_id,
+            e.ID_event AS event_id,
+            CONCAT(u.First_Name, ' ', COALESCE(u.Last_Name, '')) AS nama_user,
+            e.Nama_Event,
+            s.ID_Sertifikat,
+            s.Nama_Sertifikat
+        FROM user_event ue
+        JOIN user u ON ue.User_ID = u.ID
+        JOIN event e ON ue.Event_ID_Event = e.ID_event
         JOIN sertifikat s ON s.ID_Sertifikat = e.Sertifikat_ID_Sertifikat
         LEFT JOIN sertifuser su ON su.User_ID = u.ID AND su.Sertifikat_ID_Sertifikat = s.ID_Sertifikat
         WHERE su.User_ID IS NULL
-        GROUP BY u.ID
-    ");
-    $sertifikat = $pdo->query("
-        SELECT s.ID_Sertifikat, s.Nama_Sertifikat
-        FROM sertifikat s
-        WHERE s.Nama_Sertifikat LIKE 'Event:%'
+        ORDER BY nama_user, e.Nama_Event
     ");
 } else {
+    // User-course yang sudah lulus dan belum dapat sertifikat course tsb
     $users = $pdo->query("
-        SELECT u.ID, CONCAT(u.First_Name, ' ', u.Last_Name) AS Nama
-        FROM user u
-        JOIN user_course uc ON uc.User_ID = u.ID
-        JOIN courses c ON c.ID_courses = uc.Courses_ID_Courses
+        SELECT 
+            u.ID AS user_id,
+            c.ID_courses AS course_id,
+            CONCAT(u.First_Name, ' ', COALESCE(u.Last_Name, '')) AS nama_user,
+            c.Nama_course,
+            s.ID_Sertifikat,
+            s.Nama_Sertifikat
+        FROM user_course uc
+        JOIN user u ON uc.User_ID = u.ID
+        JOIN courses c ON uc.Courses_ID_Courses = c.ID_courses
         JOIN sertifikat s ON s.ID_Sertifikat = c.Sertifikat_ID_sertifikat
         LEFT JOIN sertifuser su ON su.User_ID = u.ID AND su.Sertifikat_ID_Sertifikat = s.ID_Sertifikat
-        WHERE su.User_ID IS NULL
-        GROUP BY u.ID
-    ");
-    $sertifikat = $pdo->query("
-        SELECT s.ID_Sertifikat, s.Nama_Sertifikat
-        FROM sertifikat s
-        WHERE s.Nama_Sertifikat LIKE 'Course:%'
+        WHERE uc.Status_course = 'Lulus' AND su.User_ID IS NULL
+        ORDER BY nama_user, c.Nama_course
     ");
 }
 
@@ -102,26 +106,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm"><?= $error ?></div>
             <?php endif; ?>
             <?php
-            if ($users->rowCount() == 0) echo "<div class='text-red-500'>Tidak ada user tersedia.</div>";
-            if ($sertifikat->rowCount() == 0) echo "<div class='text-red-500'>Tidak ada sertifikat tersedia.</div>";
+            if ($users->rowCount() == 0) echo "<div class='text-red-500'>Tidak ada user yang eligible.</div>";
             ?>
             <form method="post" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">User (yang ikut <?= $jenis ?> & belum punya sertif):</label>
+                    <label class="block text-sm font-medium mb-1">User (yang ikut <?= $jenis ?> & eligible):</label>
                     <select name="user_id" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih User --</option>
                         <?php foreach ($users as $u): ?>
-                            <option value="<?= $u['ID'] ?>"><?= htmlspecialchars($u['Nama']) ?> (<?= htmlspecialchars($u['ID']) ?>)</option>
+                            <option value="<?= $u['user_id'] ?>">
+                                <?= htmlspecialchars($u['nama_user']) ?> (<?= $jenis === 'event' ? htmlspecialchars($u['Nama_Event']) : htmlspecialchars($u['Nama_course']) ?>)
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Sertifikat Tersedia:</label>
+                    <label class="block text-sm font-medium mb-1">Sertifikat:</label>
                     <select name="sertif_id" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
                         <option value="">-- Pilih Sertifikat --</option>
-                        <?php foreach ($sertifikat as $s): ?>
-                            <option value="<?= $s['ID_Sertifikat'] ?>"><?= htmlspecialchars($s['Nama_Sertifikat']) ?> (<?= htmlspecialchars($s['ID_Sertifikat']) ?>)</option>
-                        <?php endforeach; ?>
+                        <?php
+                        // Sertifikat diambil dari hasil query user (karena 1 user hanya eligible 1 sertifikat per event/course)
+                        $users->execute(); // reset pointer
+                        $sertif_ids = [];
+                        foreach ($users as $u) {
+                            if (!in_array($u['ID_Sertifikat'], $sertif_ids)) {
+                                $sertif_ids[] = $u['ID_Sertifikat'];
+                                echo '<option value="' . $u['ID_Sertifikat'] . '">' . htmlspecialchars($u['Nama_Sertifikat']) . ' (' . htmlspecialchars($u['ID_Sertifikat']) . ')</option>';
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
                 <div class="flex justify-end mt-6">
