@@ -54,22 +54,25 @@ if ($jenis === 'event') {
 
 // Proses insert hanya jika POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $user_id = $_POST['user_id'] ?? null;
-    $sertif_id = $_POST['sertif_id'] ?? null;
+    $user_sertif_arr = $_POST['user_sertif'] ?? [];
+    $berhasil = 0; $gagal = 0;
 
-    if ($user_id && $sertif_id) {
-        if (!$sertifUserModel->exists($user_id, $sertif_id)) {
-            if ($sertifUserModel->add($user_id, $sertif_id)) {
-                $success = "Sertifikat berhasil diberikan!";
+    foreach ($user_sertif_arr as $val) {
+        if (strpos($val, '|') !== false) {
+            list($user_id, $sertif_id) = explode('|', $val, 2);
+            if (!$sertifUserModel->exists($user_id, $sertif_id)) {
+                if ($sertifUserModel->add($user_id, $sertif_id)) {
+                    $berhasil++;
+                } else {
+                    $gagal++;
+                }
             } else {
-                $error = "Gagal insert.";
+                $gagal++;
             }
-        } else {
-            $error = "User sudah punya sertifikat ini.";
         }
-    } else {
-        $error = "Data tidak lengkap.";
     }
+    if ($berhasil > 0) $success = "$berhasil sertifikat berhasil diberikan!";
+    if ($gagal > 0) $error = "$gagal gagal (sudah ada atau error).";
 }
 ?>
 <!DOCTYPE html>
@@ -108,39 +111,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php
             if ($users->rowCount() == 0) echo "<div class='text-red-500'>Tidak ada user yang eligible.</div>";
             ?>
-            <form method="post" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">User (yang ikut <?= $jenis ?> & eligible):</label>
-                    <select name="user_id" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
-                        <option value="">-- Pilih User --</option>
-                        <?php foreach ($users as $u): ?>
-                            <option value="<?= $u['user_id'] ?>">
-                                <?= htmlspecialchars($u['nama_user']) ?> (<?= $jenis === 'event' ? htmlspecialchars($u['Nama_Event']) : htmlspecialchars($u['Nama_course']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+        <form method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Pilih User yang akan diberikan sertifikat:</label>
+                <div class="max-h-64 overflow-y-auto border rounded px-3 py-2 bg-gray-50">
+                    <?php foreach ($users as $u): ?>
+                        <label class="flex items-center mb-2">
+                            <input type="checkbox" name="user_sertif[]" value="<?= $u['user_id'] ?>|<?= $u['ID_Sertifikat'] ?>" class="mr-2">
+                            <?= htmlspecialchars($u['nama_user']) ?> (<?= $jenis === 'event' ? htmlspecialchars($u['Nama_Event']) : htmlspecialchars($u['Nama_course']) ?>)
+                        </label>
+                    <?php endforeach; ?>
+                    <?php if ($users->rowCount() == 0): ?>
+                        <span class="text-gray-400">Tidak ada user yang eligible.</span>
+                    <?php endif; ?>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Sertifikat:</label>
-                    <select name="sertif_id" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200">
-                        <option value="">-- Pilih Sertifikat --</option>
-                        <?php
-                        // Sertifikat diambil dari hasil query user (karena 1 user hanya eligible 1 sertifikat per event/course)
-                        $users->execute(); // reset pointer
-                        $sertif_ids = [];
-                        foreach ($users as $u) {
-                            if (!in_array($u['ID_Sertifikat'], $sertif_ids)) {
-                                $sertif_ids[] = $u['ID_Sertifikat'];
-                                echo '<option value="' . $u['ID_Sertifikat'] . '">' . htmlspecialchars($u['Nama_Sertifikat']) . ' (' . htmlspecialchars($u['ID_Sertifikat']) . ')</option>';
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-                <div class="flex justify-end mt-6">
-                    <button type="submit" class="bg-purple-700 text-white px-6 py-2 rounded-full font-semibold hover:bg-purple-800 transition">Tambah Sertifikat</button>
-                </div>
-            </form>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="submit" class="bg-purple-700 text-white px-6 py-2 rounded-full font-semibold hover:bg-purple-800 transition">Tambah Sertifikat</button>
+            </div>
+        </form>
         </div>
     </main>
 </body>

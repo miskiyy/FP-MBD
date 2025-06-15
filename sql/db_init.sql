@@ -140,6 +140,7 @@ CREATE TABLE `event` (
   `Jenis_Event` varchar(30) NOT NULL,
   `Deskripsi_Event` varchar(200) DEFAULT NULL,
   `Lokasi_Acara` varchar(20) NOT NULL,
+  `Biaya_Pendaftaran` decimal(10,2) NOT NULL,
   `Kuota_Pendaftaran` int(11) NOT NULL,
   `tanggal_mulai_event` date NOT NULL,
   `tanggal_berakhir_event` date NOT NULL,
@@ -151,11 +152,11 @@ CREATE TABLE `event` (
 -- Dumping data for table `event`
 --
 
-INSERT INTO `event` (`ID_event`, `Nama_Event`, `Jenis_Event`, `Deskripsi_Event`, `Lokasi_Acara`, `Kuota_Pendaftaran`, `tanggal_mulai_event`, `tanggal_berakhir_event`, `Sertifikat_ID_Sertifikat`, `Karyawan_NIK`) VALUES
-('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BRI!', 'Zoom', 200, '2023-10-01', '2023-10-11', 'SRF011', '1456789012345623'),
-('EVX002', 'Empowering Tech Explorers', 'Seminar', 'Get ready to be inspired and empowered at the GDSC Trilogi University Onboarding! We are thrilled to welcome a special guest who will share invaluable insights and knowledge', 'Zoom', 250, '2023-08-03', '2023-08-09', 'SRF012', '1367890123456245'),
-('EVX003', 'Study Jam UI/UX', 'Workshop', 'Study Jam UI/UX merupakan kelompok belajar yang diselenggarakan oleh GDSC Maliki dan komunitas UINUX yang membahas tentang UX Design.', 'Discord', 150, '2023-06-09', '2023-06-16', 'SRF013', '1456789012345623'),
-('EVX004', 'Intermediate Python', 'Workshop', 'Kali ini kita akan belajar lebih banyak tentang Python, khususnya OOP, Subprogram, dll. Kita akan mengeksplorasi lebih jauh tentang penggunaan bahasa Python dan cara mengimplementasikannya dalam proye', 'Google Meet', 180, '2023-11-20', '2023-11-28', 'SRF014', '1234567890123456');
+INSERT INTO `event` (`ID_event`, `Nama_Event`, `Jenis_Event`, `Deskripsi_Event`, `Lokasi_Acara`, `Biaya_Pendaftaran`, `Kuota_Pendaftaran`, `tanggal_mulai_event`, `tanggal_berakhir_event`, `Sertifikat_ID_Sertifikat`, `Karyawan_NIK`) VALUES
+('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BRI!', 'Zoom', 70000.00, 200, '2023-10-01', '2023-10-11', 'SRF011', '1456789012345623'),
+('EVX002', 'Empowering Tech Explorers', 'Seminar', 'Get ready to be inspired and empowered at the GDSC Trilogi University Onboarding! We are thrilled to welcome a special guest who will share invaluable insights and knowledge', 'Zoom', 20000.00, 250, '2023-08-03', '2023-08-09', 'SRF012', '1367890123456245'),
+('EVX003', 'Study Jam UI/UX', 'Workshop', 'Study Jam UI/UX merupakan kelompok belajar yang diselenggarakan oleh GDSC Maliki dan komunitas UINUX yang membahas tentang UX Design.', 'Discord', 0.00, 150, '2023-06-09', '2023-06-16', 'SRF013', '1456789012345623'),
+('EVX004', 'Intermediate Python', 'Workshop', 'Kali ini kita akan belajar lebih banyak tentang Python, khususnya OOP, Subprogram, dll. Kita akan mengeksplorasi lebih jauh tentang penggunaan bahasa Python dan cara mengimplementasikannya dalam proye', 'Google Meet', 50000.00, 180, '2023-11-20', '2023-11-28', 'SRF014', '1234567890123456');
 
 -- --------------------------------------------------------
 
@@ -237,6 +238,10 @@ CREATE TABLE `log_transaksi` (
 -- Dumping data for table `log_transaksi`
 --
 
+INSERT INTO `log_transaksi` (`id_log`, `id_transaksi`, `user_id`, `waktu_log`, `aksi`, `total_awal_old`, `total_awal_new`, `total_akhir_old`, `total_akhir_new`, `diskon_old`, `diskon_new`, `status_bayar_old`, `status_bayar_new`, `metode_bayar_old`, `metode_bayar_new`) VALUES
+(1, 'TR0002', '000003', '2025-06-08 16:38:59', 'UPDATE', 8100000.00, 2000000.00, 7614000.00, 1900000.00, 0.06, 0.05, 'Lunas', 'LUNAS', 'E-Wallet', 'QRIS'),
+(2, 'TR0001', '000001', '2025-06-15 13:49:27', 'UPDATE', 100000.00, 100000.00, 100000.00, 100000.00, 0, 0, 'Menunggu Pembayaran', 'Lunas', NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -254,6 +259,8 @@ CREATE TABLE `log_warning` (
 -- Dumping data for table `log_warning`
 --
 
+INSERT INTO `log_warning` (`id`, `user_id`, `jumlah_event`, `waktu_warning`) VALUES
+(1, '000002', 4, '2025-06-08 22:39:55');
 
 -- --------------------------------------------------------
 
@@ -415,6 +422,9 @@ CREATE TABLE `transaksi` (
 -- Dumping data for table `transaksi`
 --
 
+INSERT INTO `transaksi` (`ID_Transaksi`, `Tanggal_Pemesanan`, `Total_Awal`, `REDEEM_CODE`, `Diskon`, `Total_Akhir`, `Status_Pembayaran`, `Tanggal_Dimulai`, `Tanggal_Berakhir`, `Bukti_Pembayaran`, `User_ID`, `Paket_ID_Paket`) VALUES
+('TR0001', '2025-06-15', 100000.00, NULL, 0, 100000.00, 'Lunas', '2025-06-15', '2025-07-15', '2020-08-24.png', '000001', 'PKT1');
+
 --
 -- Triggers `transaksi`
 --
@@ -476,7 +486,6 @@ CREATE TABLE `user` (
   `Nomor_Telepon` varchar(15) NOT NULL,
   `Email` varchar(60) NOT NULL,
   `Tentang_Saya` varchar(150) DEFAULT NULL,
-  `Foto_Profil` varchar(255) NOT NULL DEFAULT 'uploads/default.jpeg',
   `Tanggal_Lahir` date NOT NULL,
   `password` varchar(255) NOT NULL DEFAULT '123456'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

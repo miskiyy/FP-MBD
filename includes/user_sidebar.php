@@ -73,7 +73,7 @@
         </a>
       </li>
       <li>
-        <a href="logout.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-purple-700 text-white font-medium">
+        <a href="/codingin/public/logout.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-purple-700 text-white font-medium">
           <i data-lucide="power" class="mr-2"></i> <span class="sidebar-label">Logout</span>
         </a>
       </li>
