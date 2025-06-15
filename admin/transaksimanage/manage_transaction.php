@@ -44,11 +44,12 @@ $transaksis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Diskon</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Total Akhir</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Status Pembayaran</th>
-                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Metode Pembayaran</th>
+                            <!-- <th class="py-3 px-4 font-semibold text-gray-700 border-b">Metode Pembayaran</th> -->
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Tanggal Dimulai</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Tanggal Berakhir</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">User</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Paket</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 border-b">Bukti Pembayaran</th>
                             <th class="py-3 px-4 font-semibold text-gray-700 border-b">Aksi</th>
                         </tr>
                     </thead>
@@ -62,11 +63,30 @@ $transaksis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Diskon'] ?? '') ?></td>
                                 <td class="py-3 px-4">Rp <?= number_format($transaksi['Total_Akhir'], 0, ',', '.') ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Status_Pembayaran']) ?></td>
-                                <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Metode_Pembayaran']) ?></td>
+                                <!-- <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Metode_Pembayaran']) ?></td> -->
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Tanggal_Dimulai'] ?? '') ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Tanggal_Berakhir'] ?? '') ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['User_ID']) ?></td>
                                 <td class="py-3 px-4"><?= htmlspecialchars($transaksi['Paket_ID_Paket']) ?></td>
+                                <td>
+                                <?php
+                                $path = !empty($transaksi['Bukti_Pembayaran'])
+                                    ? '../../uploads/' . $transaksi['Bukti_Pembayaran']
+                                    : '';
+                                $webPath = !empty($transaksi['Bukti_Pembayaran'])
+                                    ? '/codingin/uploads/' . $transaksi['Bukti_Pembayaran']
+                                    : '';
+                                ?>
+                                <?php if ($path): ?>
+                                    <a href="<?= htmlspecialchars($webPath) ?>" target="_blank" class="text-purple-700 underline">
+                                        Lihat Bukti
+                                    </a>
+                                    <br>
+                                    <span class="text-xs text-gray-500"><?= htmlspecialchars($webPath) ?></span>
+                                <?php else: ?>
+                                    <span class="text-gray-400">-</span>
+                                <?php endif; ?>
+                                </td>
                                 <td class="py-3 px-4">
                                     <div class="flex gap-x-2">
                                         <a href='edit_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>'
@@ -77,6 +97,11 @@ $transaksis = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                            class='inline-flex items-center justify-center bg-red-500 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-red-600 transition text-xs shadow-sm'
                                            onclick='return confirm("Yakin?")'>
                                             Hapus
+                                        </a>
+                                        <a href='cancel_transaksi.php?id=<?= urlencode($transaksi['ID_Transaksi']) ?>'
+                                        class='inline-flex items-center justify-center bg-gray-400 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-gray-500 transition text-xs shadow-sm'
+                                        onclick='return confirm("Batalkan transaksi ini?")'>
+                                            Cancel
                                         </a>
                                     </div>
                                 </td>
