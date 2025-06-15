@@ -24,7 +24,6 @@ $transaksi = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <th>Tanggal Pemesanan</th>
           <th>Total</th>
           <th>Status</th>
-          <th>Metode</th>
         </tr>
       </thead>
       <tbody>
@@ -33,7 +32,6 @@ $transaksi = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= htmlspecialchars($t['Tanggal_Pemesanan']) ?></td>
             <td>Rp <?= number_format($t['Total_Akhir'], 0, ',', '.') ?></td>
             <td><?= htmlspecialchars($t['Status_Pembayaran']) ?></td>
-            <td><?= htmlspecialchars($t['Metode_Pembayaran']) ?></td>
           </tr>
         <?php endforeach; ?>
       </tbody>

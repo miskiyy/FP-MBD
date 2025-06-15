@@ -255,10 +255,10 @@ CREATE TABLE `paket` (
 --
 
 INSERT INTO `paket` (`ID_paket`, `Nama_paket`, `Durasi_paket`, `Harga`) VALUES
-('PKT1', 'Pemula', 1, 1500000.00),
-('PKT2', 'Jago', 3, 4500000.00),
-('PKT3', 'Sepuh', 6, 8100000.00),
-('PKT4', 'Suhu', 12, 12600000.00);
+('PKT1', 'Pemula', 1, 100000.00),
+('PKT2', 'Jago', 3, 250000.00),
+('PKT3', 'Sepuh', 6, 500000.00),
+('PKT4', 'Suhu', 12, 1000000.00);
 
 -- --------------------------------------------------------
 
@@ -356,61 +356,56 @@ DELIMITER ;
 -- Table structure for table `transaksi`
 --
 
-CREATE TABLE `transaksi` (
-  `ID_Transaksi` char(6) NOT NULL,
-  `Tanggal_Pemesanan` date NOT NULL,
-  `Total_Awal` decimal(10,2) NOT NULL,
-  `REDEEM_CODE` varchar(5) DEFAULT NULL,
-  `Diskon` float DEFAULT NULL,
-  `Total_Akhir` decimal(10,2) NOT NULL,
-  `Status_Pembayaran` varchar(30) NOT NULL,
-  `Metode_Pembayaran` varchar(30) NOT NULL,
-  `Tanggal_Dimulai` date DEFAULT NULL,
-  `Tanggal_Berakhir` date DEFAULT NULL,
-  `User_ID` char(6) NOT NULL,
-  `Paket_ID_Paket` char(4) NOT NULL
+CREATE TABLE transaksi (
+  ID_Transaksi CHAR(6) PRIMARY KEY,
+  Tanggal_Pemesanan DATE NOT NULL,
+  Total_Awal DECIMAL(10,2) NOT NULL,
+  REDEEM_CODE VARCHAR(10) DEFAULT NULL,
+  Diskon FLOAT DEFAULT NULL,
+  Total_Akhir DECIMAL(10,2) NOT NULL,
+  Status_Pembayaran VARCHAR(30) NOT NULL,
+  Tanggal_Dimulai DATE DEFAULT NULL,
+  Tanggal_Berakhir DATE DEFAULT NULL,
+  Bukti_Pembayaran VARCHAR(255) DEFAULT NULL,
+  User_ID CHAR(6) NOT NULL,
+  Paket_ID_Paket CHAR(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `transaksi`
 --
 
-INSERT INTO `transaksi` (`ID_Transaksi`, `Tanggal_Pemesanan`, `Total_Awal`, `REDEEM_CODE`, `Diskon`, `Total_Akhir`, `Status_Pembayaran`, `Metode_Pembayaran`, `Tanggal_Dimulai`, `Tanggal_Berakhir`, `User_ID`, `Paket_ID_Paket`) VALUES
-('TR0001', '2023-01-04', 1500000.00, 'AIXCN', 0.1, 1350000.00, 'Lunas', 'QRIS', '2023-01-05', '2023-02-05', '000001', 'PKT1'),
-('TR0002', '2023-06-06', 2000000.00, 'AAXCN', 0.05, 1900000.00, 'LUNAS', 'QRIS', '2022-06-06', '2022-12-06', '000003', 'PKT3'),
-('TR0003', '2023-02-06', 1500000.00, 'AISCN', 0.02, 1470000.00, 'Lunas', 'QRIS', '2023-02-07', '2023-03-07', '000005', 'PKT1'),
-('TR0004', '2023-05-09', 1500000.00, 'AIXAN', 0.03, 1455000.00, 'Lunas', 'Transfer Bank', '2023-05-09', '2023-06-09', '000002', 'PKT1'),
-('TR0005', '2023-01-02', 12600000.00, 'CIXCN', 0.2, 10080000.00, 'Lunas', 'Virtual Account', '2023-01-02', '2024-01-02', '000003', 'PKT4'),
-('TR0006', '2023-09-23', 4500000.00, NULL, NULL, 4500000.00, 'Lunas', 'E-Wallet', '2023-09-24', '2023-12-09', '000004', 'PKT2'),
-('TR0007', '2023-01-04', 1500000.00, NULL, 0.1, 1500000.00, 'menunggu pembayaran', 'Transfer Bank', NULL, NULL, '000001', 'PKT1'),
-('TR0008', '2025-06-08', 200000.00, 'HC025', 0.5, 100000.00, 'Menunggu Pembayaran', 'QRIS', NULL, NULL, '000003', 'PKT2');
-
 --
 -- Triggers `transaksi`
 --
 DELIMITER $$
-CREATE TRIGGER `trg_log_transaksi_audit` AFTER UPDATE ON `transaksi` FOR EACH ROW BEGIN
+CREATE TRIGGER `trg_log_transaksi_audit` 
+AFTER UPDATE ON `transaksi` 
+FOR EACH ROW 
+BEGIN
   INSERT INTO log_transaksi (
     id_transaksi, user_id, aksi,
     total_awal_old, total_awal_new,
     total_akhir_old, total_akhir_new,
     diskon_old, diskon_new,
-    status_bayar_old, status_bayar_new,
-    metode_bayar_old, metode_bayar_new
+    status_bayar_old, status_bayar_new
   )
   VALUES (
     OLD.ID_Transaksi, OLD.User_ID, 'UPDATE',
     OLD.Total_Awal, NEW.Total_Awal,
     OLD.Total_Akhir, NEW.Total_Akhir,
     OLD.Diskon, NEW.Diskon,
-    OLD.Status_Pembayaran, NEW.Status_Pembayaran,
-    OLD.Metode_Pembayaran, NEW.Metode_Pembayaran
+    OLD.Status_Pembayaran, NEW.Status_Pembayaran
   );
 END
 $$
 DELIMITER ;
+
 DELIMITER $$
-CREATE TRIGGER `trigger_hitung_total_akhir` BEFORE UPDATE ON `transaksi` FOR EACH ROW BEGIN
+CREATE TRIGGER trigger_hitung_total_akhir
+BEFORE INSERT ON transaksi
+FOR EACH ROW 
+BEGIN
   IF NEW.REDEEM_CODE IS NOT NULL AND NEW.Diskon IS NOT NULL THEN
     SET NEW.Total_Akhir = NEW.Total_Awal - (NEW.Total_Awal * NEW.Diskon);
   ELSE
@@ -420,7 +415,41 @@ END
 $$
 DELIMITER ;
 
+DELIMITER $$
+CREATE TRIGGER isiTanggalTransaksi
+BEFORE UPDATE ON transaksi
+FOR EACH ROW
+BEGIN
+  IF NEW.Status_Pembayaran = 'Lunas' AND OLD.Status_Pembayaran != 'Lunas' THEN
+    SET NEW.Tanggal_Dimulai = CURDATE();
+    SET NEW.Tanggal_Berakhir = DATE_ADD(CURDATE(), INTERVAL (
+      SELECT Durasi_paket FROM paket WHERE ID_paket = NEW.Paket_ID_Paket
+    ) MONTH);
+  END IF;
+END$$
+DELIMITER ;
+
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `redeem_code`
+--
+
+CREATE TABLE redeem_code (
+  Kode VARCHAR(15) PRIMARY KEY,
+  Diskon FLOAT NOT NULL
+);
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO redeem_code (Kode, Diskon) VALUES
+('PAYDAY45', 0.45),
+('SUKSES20', 0.2),
+('THEFIRST', 0.1),
+('WINDABIRTHDAY', 0.7),
+('MISKIKEREN', 0.65);
 
 --
 -- Table structure for table `user`
@@ -622,7 +651,6 @@ ALTER TABLE `sertifuser`
 -- Indexes for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  ADD PRIMARY KEY (`ID_Transaksi`),
   ADD KEY `idx_transaksi_user` (`User_ID`),
   ADD KEY `idx_transaksi_paket` (`Paket_ID_Paket`),
   ADD KEY `idx_transaksi_tanggal` (`Tanggal_Pemesanan`);

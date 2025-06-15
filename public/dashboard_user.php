@@ -1,7 +1,37 @@
 <?php
+require_once '../config/database.php';
 session_start();
+
 if (!isset($_SESSION["user_id"])) {
     header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION["user_id"];
+
+// Cek transaksi terbaru user
+$stmt = $pdo->prepare("SELECT ID_Transaksi, Status_Pembayaran, Tanggal_Berakhir 
+                       FROM transaksi 
+                       WHERE User_ID = ?
+                       ORDER BY Tanggal_Pemesanan DESC LIMIT 1");
+$stmt->execute([$user_id]);
+$data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Belum pernah transaksi → redirect ke plan
+if (!$data) {
+    header("Location: ../transaksi/choose_plan.php");
+    exit();
+}
+
+// Masih nunggu pembayaran / bukti → redirect ke status
+if (in_array($data['Status_Pembayaran'], ['Menunggu Pembayaran', 'Menunggu Verifikasi'])) {
+    header("Location: ../transaksi/status_transaksi.php?id=" . $data['ID_Transaksi']);
+    exit();
+}
+
+// Sudah lunas tapi masa aktifnya habis → redirect ke plan
+if ($data['Status_Pembayaran'] === 'Lunas' && strtotime($data['Tanggal_Berakhir']) < time()) {
+    header("Location: ../transaksi/choose_plan.php");
     exit();
 }
 ?>
