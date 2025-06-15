@@ -15,53 +15,53 @@ $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Daftar Course</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    body {
-      background: #f4f6f9;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .card {
-      transition: all 0.3s ease-in-out;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-    }
+    body { font-family: 'Inter', sans-serif; }
+    .collapsed { width: 64px !important; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .collapsed .sidebar-label { display: none; }
   </style>
 </head>
-<body>
-  <div class="container py-5">
-    <h2 class="mb-4 text-center">📚 Daftar Course Tersedia</h2>
+<body class="bg-gray-100 min-h-screen">
+<div class="flex">
+  <?php include '../includes/user_sidebar.php'; ?>
+
+  <main id="mainContent" class="flex-grow p-8 pt-20 transition-all duration-300">
+    <h2 class="text-2xl font-bold text-purple-800 mb-6 text-center">📚 Daftar Course Tersedia</h2>
 
     <?php if (isset($_GET['status'])): ?>
-      <div class="alert alert-<?= $_GET['status'] === 'joined' ? 'success' : 'info' ?> text-center">
+      <div class="max-w-xl mx-auto mb-6 px-4 py-3 rounded-lg text-sm font-medium 
+        <?= $_GET['status'] === 'joined' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
         <?= $_GET['status'] === 'joined' ? 'Berhasil bergabung dengan course!' : 'Kamu sudah terdaftar di course ini.' ?>
       </div>
     <?php endif; ?>
 
-    <div class="row">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <?php foreach ($courses as $course): ?>
-        <div class="col-md-6 col-lg-4 mb-4">
-          <div class="card h-100">
-            <div class="card-body">
-              <h5 class="card-title"><?= htmlspecialchars($course['Nama_course']) ?></h5>
-              <p class="card-text">Tingkat Kesulitan: <strong><?= htmlspecialchars($course['Tingkat_kesulitan']) ?></strong></p>
-              <p class="mb-1"><strong>Rating:</strong> <?= htmlspecialchars($course['Rating_course']) ?>/5</p>
-              <a href="join_course.php?id=<?= urlencode($course['ID_courses']) ?>" class="btn btn-success w-100 mt-3">
-                Gabung Sekarang
-              </a>
-            </div>
-          </div>
+        <div class="bg-white rounded-xl shadow p-6 transition hover:shadow-lg hover:-translate-y-1 duration-200">
+          <h5 class="text-lg font-bold text-purple-800 mb-2"><?= htmlspecialchars($course['Nama_course']) ?></h5>
+          <p class="text-sm text-gray-700 mb-1">🎯 Tingkat Kesulitan: <strong><?= htmlspecialchars($course['Tingkat_kesulitan']) ?></strong></p>
+          <p class="text-sm text-gray-700 mb-4">⭐ Rating: <?= htmlspecialchars($course['Rating_course']) ?>/5</p>
+          <a href="join_course.php?id=<?= urlencode($course['ID_courses']) ?>" class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-md transition">
+            Gabung Sekarang
+          </a>
         </div>
       <?php endforeach; ?>
     </div>
 
-    <div class="text-center mt-4">
-      <a href="../dashboard_user.php" class="btn btn-secondary">← Kembali ke Dashboard</a>
+    <div class="text-center mt-10">
+      <a href="../public/dashboard_user.php" class="inline-flex items-center text-purple-700 hover:underline font-semibold">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i> Kembali ke Dashboard
+      </a>
     </div>
-  </div>
+  </main>
+</div>
+
+<script>lucide.createIcons();</script>
 </body>
 </html>

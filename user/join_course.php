@@ -43,76 +43,42 @@ if (!$course_id) {
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Gabung Kursus</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    body {
-      background: #f5f5f5;
-    }
-    .container {
-      background: #4c018d;
-      color: #fff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 14px rgb(0 0 0 / 0.4);
-      margin-top: 50px;
-      max-width: 500px;
-      text-align: center;
-    }
-    .alert {
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
-    .alert-info {
-      background: #fff3cd;
-      color: #856404;
-    }
-    .alert-danger {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    .alert-success {
-      background: #d4edda;
-      color: #155724;
-    }
-    a.btn {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      background: #fff;
-      color: #4c018d;
-      text-decoration: none;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.4);
-      transition: transform 0.2s ease-in-out;
-    }
-    a.btn:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 20px rgb(0 0 0 / 0.4);
-      background: #e5ccff;
-    }
+    body { font-family: 'Inter', sans-serif; }
+    .collapsed { width: 64px !important; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .collapsed .sidebar-label { display: none; }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
 
-  <div class="container">
-    <h1>Gabung Kursus</h1>
+  <div class="flex">
+    <!-- Sidebar (cukup include aja, tidak usah bikin burger lagi) -->
+    <?php include '../includes/user_sidebar.php'; ?>
 
-    <?php if (isset($error)): ?>
-      <div class="alert alert-danger"><?= htmlentities($error) ?> </div>
-      <a href="course_list.php" class="btn">Kembali</a>
-    <?php endif; ?>
-  
-    <?php if (isset($success)): ?>
-      <div class="alert alert-success"><?= htmlentities($success) ?> </div>
-      <a href="course_list.php" class="btn">Lihat Daftar Kursus</a>
-    <?php endif; ?>
+    <!-- Main content -->
+    <main id="mainContent" class="flex-grow p-8 pt-20 transition-all duration-300">
+      <div class="max-w-xl mx-auto bg-white shadow-lg rounded-xl p-8 text-center">
+        <h1 class="text-2xl font-bold text-purple-800 mb-6">Gabung Kursus</h1>
+
+        <?php if (isset($error)): ?>
+          <div class="bg-red-100 text-red-700 px-4 py-3 rounded mb-4"><?= htmlentities($error) ?></div>
+          <a href="course_list.php" class="inline-block mt-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold">Kembali</a>
+        <?php elseif (isset($success)): ?>
+          <div class="bg-green-100 text-green-700 px-4 py-3 rounded mb-4"><?= htmlentities($success) ?></div>
+          <a href="course_list.php" class="inline-block mt-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold">Lihat Daftar Kursus</a>
+        <?php endif; ?>
+      </div>
+    </main>
   </div>
 
-  <?php include '../includes/footer_user.php'; ?>
-
+  <script>
+    lucide.createIcons(); 
+  </script>
 </body>
 </html>

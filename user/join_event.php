@@ -8,53 +8,32 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 $user_id = $_SESSION["user_id"];
-$event_id = $_POST["event_id"] ?? $_GET["id"] ?? null;
+$event_id = $_POST['event_id'] ?? $_GET['id'] ?? null;
 
 if (!$event_id) {
-    die("Event tidak ditemukan.");
-}
+    $error = "ID event tidak ditemukan.";
+} else {
+    // Validasi event tersedia
+    $checkEvent = $pdo->prepare("SELECT * FROM event WHERE ID_event = ?");
+    $checkEvent->execute([$event_id]);
+    $event = $checkEvent->fetch();
 
-// Ambil detail event
-$stmt = $pdo->prepare("SELECT * FROM event WHERE ID_event = ?");
-$stmt->execute([$event_id]);
-$event = $stmt->fetch();
-
-if (!$event) {
-    die("Event tidak ditemukan.");
-}
-
-// Cek status sukses dari redirect GET
-$pesan = "";
-if (isset($_GET['status']) && $_GET['status'] === 'success') {
-    $pesan = "Pendaftaran berhasil!";
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_GET['status'])) {
-    $metode = $_POST["metode_pembayaran"] ?? "QRIS";
-
-    // Cek apakah user sudah mendaftar
-    $cek = $pdo->prepare("SELECT 1 FROM user_event WHERE User_ID = ? AND Event_ID_Event = ?");
-    $cek->execute([$user_id, $event_id]);
-
-    if (!$cek->fetch()) {
-        // Daftarkan user
-        $insert = $pdo->prepare("INSERT INTO user_event (User_ID, Event_ID_Event) VALUES (?, ?)");
-        $insert->execute([$user_id, $event_id]);
-
-        // Simpan transaksi dummy (jika mau catat pembayaran)
-        $trx = $pdo->prepare("INSERT INTO transaksi 
-            (ID_Transaksi, Tanggal_Pemesanan, Total_Awal, Diskon, Total_Akhir, Status_Pembayaran, Metode_Pembayaran, User_ID, Paket_ID_Paket) 
-            VALUES (?, CURDATE(), ?, 0, ?, 'Lunas', ?, ?, 'PKT1')");
-        $trx->execute([
-            uniqid("TR"), $event["Biaya_Pendaftaran"], $event["Biaya_Pendaftaran"],
-            $metode, $user_id
-        ]);
-
-        // Redirect agar tidak double submit saat refresh
-        header("Location: join_event.php?id=$event_id&status=success");
-        exit();
+    if (!$event) {
+        $error = "Event tidak ditemukan.";
     } else {
-        $pesan = "Kamu sudah terdaftar di event ini.";
+        // Cek apakah user sudah mendaftar
+        $cek = $pdo->prepare("SELECT 1 FROM user_event WHERE User_ID = ? AND Event_ID_Event = ?");
+        $cek->execute([$user_id, $event_id]);
+
+        if ($cek->fetch()) {
+            $error = "Kamu sudah mendaftar di event ini.";
+        } else {
+            // Simpan pendaftaran
+            $insert = $pdo->prepare("INSERT INTO user_event (User_ID, Event_ID_Event) VALUES (?, ?)");
+            $insert->execute([$user_id, $event_id]);
+
+            $success = "Berhasil mendaftar ke event.";
+        }
     }
 }
 ?>
@@ -62,45 +41,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_GET['status'])) {
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Join Event</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Gabung Event</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', sans-serif;
-    }
+    body { font-family: 'Inter', sans-serif; }
+    .collapsed { width: 64px !important; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .collapsed .sidebar-label { display: none; }
   </style>
 </head>
-<body>
-<div class="container py-5">
-  <div class="card p-4 shadow-sm">
-    <h3 class="mb-3">📅 Pendaftaran Event: <?= htmlspecialchars($event["Nama_Event"]) ?></h3>
-    <p><?= htmlspecialchars($event["Deskripsi_Event"]) ?></p>
-    <p><strong>Biaya:</strong> Rp<?= number_format($event["Biaya_Pendaftaran"], 0, ',', '.') ?></p>
+<body class="bg-gray-100 min-h-screen">
+  <div class="flex">
+    <?php include '../includes/user_sidebar.php'; ?>
 
-    <?php if (!empty($pesan)): ?>
-      <div class="alert alert-info mt-3"><?= $pesan ?></div>
-    <?php else: ?>
-      <form method="post" class="mt-4">
-        <input type="hidden" name="event_id" value="<?= htmlspecialchars($event_id) ?>">
+    <main id="mainContent" class="flex-grow p-8 pt-20 transition-all duration-300">
+      <div class="max-w-xl mx-auto bg-white shadow-lg rounded-xl p-8 text-center">
+        <h1 class="text-2xl font-bold text-purple-800 mb-6">Gabung Event</h1>
 
-        <div class="mb-3">
-          <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
-          <select name="metode_pembayaran" id="metode_pembayaran" class="form-select" required>
-            <option value="QRIS">QRIS</option>
-            <option value="Transfer Bank">Transfer Bank</option>
-            <option value="E-Wallet">E-Wallet</option>
-          </select>
-        </div>
-
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-success">Bayar & Daftar</button>
-          <a href="event_list.php" class="btn btn-secondary">← Kembali</a>
-        </div>
-      </form>
-    <?php endif; ?>
+        <?php if (isset($error)): ?>
+          <div class="bg-yellow-100 text-yellow-800 px-4 py-3 rounded mb-4"><?= htmlentities($error) ?></div>
+          <a href="event_list.php" class="inline-block mt-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold">Kembali</a>
+        <?php elseif (isset($success)): ?>
+          <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-4"><?= htmlentities($success) ?></div>
+          <a href="event_list.php" class="inline-block mt-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold">Lihat Event Lain</a>
+        <?php endif; ?>
+      </div>
+    </main>
   </div>
-</div>
+
+  <script>lucide.createIcons();</script>
 </body>
 </html>

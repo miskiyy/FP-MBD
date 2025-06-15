@@ -28,76 +28,48 @@ $total = $stmt_total->fetchColumn();
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Kursus Saya</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css">
-  <style>
-    body {
-      background: #f5f5f5;
-    }
-    .container {
-      background: #4c018d;
-      color: #fff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 14px rgb(0 0 0 / 0.4);
-    }
-    .list-group-item {
-      background: #fff;
-      color: #4c018d;
-      margin-bottom: 10px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.2);
-      transition: transform 0.2s ease-in-out;
-    }
-    .list-group-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 20px rgb(0 0 0 / 0.4);
-    }
-    .list-group-item h5 {
-      color: #4c018d;
-      font-size: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-    .list-group-item p {
-      color: #555;
-      margin-bottom: 0.5rem;
-    }
-    .alert-info {
-      background: #fff3cd;
-      color: #856404;
-      padding: 20px;
-      border-radius: 12px;
-    }
-    h3 {
-      color: #fff;
-      margin-bottom: 30px;
-    }
-  </style>
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 
-  <div class="container mt-5">
-    <h3>📚 Kursus Saya</h3>
+  <div class="flex">
+    <?php include '../includes/user_sidebar.php'; ?>
 
-    <?php if ($courses): ?>
-      <ul class="list-group p-0">
-        <?php foreach ($courses as $course): ?>
-          <li class="list-group-item">
-            <h5><?= htmlspecialchars($course['Nama_course']) ?> </h5>
-            <p>Rating: <?= htmlspecialchars($course['Rating_course']) ?> | Tingkat Kesulitan: <?= htmlspecialchars($course['Tingkat_kesulitan']) ?> </p>
-            <p>Status: <?= $course['Status_course'] ?> </p>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-      <div class="alert alert-info mt-4">
-        Anda tengah mengikuti <?= $total ?> kursus.
+    <!-- Main Content -->
+    <main id="mainContent" class="flex-grow p-8 pt-20 transition-all duration-300">
+      <a href="../public/dashboard_user.php" class="inline-flex items-center text-purple-700 hover:underline mb-6 font-medium">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        Kembali ke Dashboard
+      </a>
+
+      <div class="bg-purple-800 text-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-2xl font-bold mb-6">📚 Kursus Saya</h3>
+
+        <?php if ($courses): ?>
+          <div class="space-y-4">
+            <?php foreach ($courses as $course): ?>
+              <div class="bg-white text-purple-900 rounded-xl shadow p-6 transition hover:shadow-lg hover:-translate-y-1 duration-200">
+                <h5 class="text-xl font-bold mb-2"><?= htmlspecialchars($course['Nama_course']) ?></h5>
+                <p class="text-sm text-gray-600 mb-1">⭐ Rating: <?= htmlspecialchars($course['Rating_course']) ?> | 🎯 Tingkat Kesulitan: <?= htmlspecialchars($course['Tingkat_kesulitan']) ?></p>
+                <p class="text-sm text-gray-700 font-semibold">Status: <?= $course['Status_course'] ?></p>
+              </div>
+            <?php endforeach; ?>
+          </div>
+
+          <div class="mt-6 bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg font-medium">
+            Anda tengah mengikuti <?= $total ?> kursus.
+          </div>
+        <?php else: ?>
+          <div class="mt-6 bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg font-medium">
+            Belum ada kursus yang diikuti.
+          </div>
+        <?php endif; ?>
       </div>
-    <?php else: ?>
-      <div class="alert alert-info">Belum ada kursus yang diikuti.</div>
-    <?php endif; ?>
+    </main>
   </div>
-
+  <script>lucide.createIcons();</script>
 </body>
 </html>
