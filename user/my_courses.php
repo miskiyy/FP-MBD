@@ -18,7 +18,7 @@ $stmt->execute([$user_id]);
 $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt->closeCursor();
 
-// function total_course_user
+// M function total_course_user
 $stmt_total = $pdo->prepare("SELECT total_course_user(?) AS total");
 $stmt_total->execute([$user_id]);
 $total = $stmt_total->fetchColumn();

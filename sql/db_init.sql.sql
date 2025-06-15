@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 12, 2025 at 11:45 AM
+-- Generation Time: Jun 15, 2025 at 04:21 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -20,6 +20,30 @@ SET time_zone = "+00:00";
 --
 -- Database: `test`
 --
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserCourses` (IN `p_User_ID` CHAR(6))   BEGIN
+  SELECT c.Nama_course, c.Rating_course, c.Tingkat_kesulitan, uc.Status_course
+  FROM user_course uc
+  JOIN courses c ON uc.Courses_ID_Courses = c.ID_courses
+  WHERE uc.User_ID = p_User_ID;
+END$$
+
+--
+-- Functions
+--
+CREATE DEFINER=`root`@`localhost` FUNCTION `total_course_user` (`p_user_id` CHAR(6)) RETURNS INT(11) DETERMINISTIC BEGIN
+    DECLARE total INT;
+    SELECT COUNT(*) INTO total
+    FROM user_course
+    WHERE User_ID = p_user_id;
+    RETURN total;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -215,7 +239,8 @@ CREATE TABLE `log_transaksi` (
 --
 
 INSERT INTO `log_transaksi` (`id_log`, `id_transaksi`, `user_id`, `waktu_log`, `aksi`, `total_awal_old`, `total_awal_new`, `total_akhir_old`, `total_akhir_new`, `diskon_old`, `diskon_new`, `status_bayar_old`, `status_bayar_new`, `metode_bayar_old`, `metode_bayar_new`) VALUES
-(1, 'TR0002', '000003', '2025-06-08 16:38:59', 'UPDATE', 8100000.00, 2000000.00, 7614000.00, 1900000.00, 0.06, 0.05, 'Lunas', 'LUNAS', 'E-Wallet', 'QRIS');
+(1, 'TR0002', '000003', '2025-06-08 16:38:59', 'UPDATE', 8100000.00, 2000000.00, 7614000.00, 1900000.00, 0.06, 0.05, 'Lunas', 'LUNAS', 'E-Wallet', 'QRIS'),
+(2, 'TR0001', '000001', '2025-06-15 13:49:27', 'UPDATE', 100000.00, 100000.00, 100000.00, 100000.00, 0, 0, 'Menunggu Pembayaran', 'Lunas', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -263,13 +288,35 @@ INSERT INTO `paket` (`ID_paket`, `Nama_paket`, `Durasi_paket`, `Harga`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `redeem_code`
+--
+
+CREATE TABLE `redeem_code` (
+  `Kode` varchar(15) NOT NULL,
+  `Diskon` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `redeem_code`
+--
+
+INSERT INTO `redeem_code` (`Kode`, `Diskon`) VALUES
+('MISKIKEREN', 0.65),
+('PAYDAY45', 0.45),
+('SUKSES20', 0.2),
+('THEFIRST', 0.1),
+('WINDABIRTHDAY', 0.7);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sertifikat`
 --
 
 CREATE TABLE `sertifikat` (
   `ID_Sertifikat` char(8) NOT NULL,
   `Nama_Sertifikat` varchar(100) NOT NULL,
-  `sertif_template` varchar(255)
+  `sertif_template` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -356,33 +403,44 @@ DELIMITER ;
 -- Table structure for table `transaksi`
 --
 
-CREATE TABLE transaksi (
-  ID_Transaksi CHAR(6) PRIMARY KEY,
-  Tanggal_Pemesanan DATE NOT NULL,
-  Total_Awal DECIMAL(10,2) NOT NULL,
-  REDEEM_CODE VARCHAR(10) DEFAULT NULL,
-  Diskon FLOAT DEFAULT NULL,
-  Total_Akhir DECIMAL(10,2) NOT NULL,
-  Status_Pembayaran VARCHAR(30) NOT NULL,
-  Tanggal_Dimulai DATE DEFAULT NULL,
-  Tanggal_Berakhir DATE DEFAULT NULL,
-  Bukti_Pembayaran VARCHAR(255) DEFAULT NULL,
-  User_ID CHAR(6) NOT NULL,
-  Paket_ID_Paket CHAR(4) NOT NULL
+CREATE TABLE `transaksi` (
+  `ID_Transaksi` char(6) NOT NULL,
+  `Tanggal_Pemesanan` date NOT NULL,
+  `Total_Awal` decimal(10,2) NOT NULL,
+  `REDEEM_CODE` varchar(10) DEFAULT NULL,
+  `Diskon` float DEFAULT NULL,
+  `Total_Akhir` decimal(10,2) NOT NULL,
+  `Status_Pembayaran` varchar(30) NOT NULL,
+  `Tanggal_Dimulai` date DEFAULT NULL,
+  `Tanggal_Berakhir` date DEFAULT NULL,
+  `Bukti_Pembayaran` varchar(255) DEFAULT NULL,
+  `User_ID` char(6) NOT NULL,
+  `Paket_ID_Paket` char(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `transaksi`
 --
 
+INSERT INTO `transaksi` (`ID_Transaksi`, `Tanggal_Pemesanan`, `Total_Awal`, `REDEEM_CODE`, `Diskon`, `Total_Akhir`, `Status_Pembayaran`, `Tanggal_Dimulai`, `Tanggal_Berakhir`, `Bukti_Pembayaran`, `User_ID`, `Paket_ID_Paket`) VALUES
+('TR0001', '2025-06-15', 100000.00, NULL, 0, 100000.00, 'Lunas', '2025-06-15', '2025-07-15', '2020-08-24.png', '000001', 'PKT1');
+
 --
 -- Triggers `transaksi`
 --
 DELIMITER $$
-CREATE TRIGGER `trg_log_transaksi_audit` 
-AFTER UPDATE ON `transaksi` 
-FOR EACH ROW 
-BEGIN
+CREATE TRIGGER `isiTanggalTransaksi` BEFORE UPDATE ON `transaksi` FOR EACH ROW BEGIN
+  IF NEW.Status_Pembayaran = 'Lunas' AND OLD.Status_Pembayaran != 'Lunas' THEN
+    SET NEW.Tanggal_Dimulai = CURDATE();
+    SET NEW.Tanggal_Berakhir = DATE_ADD(CURDATE(), INTERVAL (
+      SELECT Durasi_paket FROM paket WHERE ID_paket = NEW.Paket_ID_Paket
+    ) MONTH);
+  END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_log_transaksi_audit` AFTER UPDATE ON `transaksi` FOR EACH ROW BEGIN
   INSERT INTO log_transaksi (
     id_transaksi, user_id, aksi,
     total_awal_old, total_awal_new,
@@ -400,12 +458,8 @@ BEGIN
 END
 $$
 DELIMITER ;
-
 DELIMITER $$
-CREATE TRIGGER trigger_hitung_total_akhir
-BEFORE INSERT ON transaksi
-FOR EACH ROW 
-BEGIN
+CREATE TRIGGER `trigger_hitung_total_akhir` BEFORE INSERT ON `transaksi` FOR EACH ROW BEGIN
   IF NEW.REDEEM_CODE IS NOT NULL AND NEW.Diskon IS NOT NULL THEN
     SET NEW.Total_Akhir = NEW.Total_Awal - (NEW.Total_Awal * NEW.Diskon);
   ELSE
@@ -415,41 +469,7 @@ END
 $$
 DELIMITER ;
 
-DELIMITER $$
-CREATE TRIGGER isiTanggalTransaksi
-BEFORE UPDATE ON transaksi
-FOR EACH ROW
-BEGIN
-  IF NEW.Status_Pembayaran = 'Lunas' AND OLD.Status_Pembayaran != 'Lunas' THEN
-    SET NEW.Tanggal_Dimulai = CURDATE();
-    SET NEW.Tanggal_Berakhir = DATE_ADD(CURDATE(), INTERVAL (
-      SELECT Durasi_paket FROM paket WHERE ID_paket = NEW.Paket_ID_Paket
-    ) MONTH);
-  END IF;
-END$$
-DELIMITER ;
-
 -- --------------------------------------------------------
-
---
--- Table structure for table `redeem_code`
---
-
-CREATE TABLE redeem_code (
-  Kode VARCHAR(15) PRIMARY KEY,
-  Diskon FLOAT NOT NULL
-);
-
---
--- Dumping data for table `user`
---
-
-INSERT INTO redeem_code (Kode, Diskon) VALUES
-('PAYDAY45', 0.45),
-('SUKSES20', 0.2),
-('THEFIRST', 0.1),
-('WINDABIRTHDAY', 0.7),
-('MISKIKEREN', 0.65);
 
 --
 -- Table structure for table `user`
@@ -635,6 +655,12 @@ ALTER TABLE `paket`
   ADD PRIMARY KEY (`ID_paket`);
 
 --
+-- Indexes for table `redeem_code`
+--
+ALTER TABLE `redeem_code`
+  ADD PRIMARY KEY (`Kode`);
+
+--
 -- Indexes for table `sertifikat`
 --
 ALTER TABLE `sertifikat`
@@ -651,6 +677,7 @@ ALTER TABLE `sertifuser`
 -- Indexes for table `transaksi`
 --
 ALTER TABLE `transaksi`
+  ADD PRIMARY KEY (`ID_Transaksi`),
   ADD KEY `idx_transaksi_user` (`User_ID`),
   ADD KEY `idx_transaksi_paket` (`Paket_ID_Paket`),
   ADD KEY `idx_transaksi_tanggal` (`Tanggal_Pemesanan`);
@@ -692,7 +719,7 @@ ALTER TABLE `log_kelulusan`
 -- AUTO_INCREMENT for table `log_transaksi`
 --
 ALTER TABLE `log_transaksi`
-  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `log_warning`
