@@ -192,27 +192,6 @@ INSERT INTO `karyawan` (`NIK`, `First_Name`, `Last_Name`, `Email`, `Riwayat_Pend
 -- --------------------------------------------------------
 
 --
--- Table structure for table `log_kelulusan`
---
-
-CREATE TABLE `log_kelulusan` (
-  `id` int(11) NOT NULL,
-  `user_id` varchar(10) DEFAULT NULL,
-  `kursus_id` varchar(10) DEFAULT NULL,
-  `waktu_lulus` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `log_kelulusan`
---
-
-INSERT INTO `log_kelulusan` (`id`, `user_id`, `kursus_id`, `waktu_lulus`) VALUES
-(1, '000003', 'CRS002', '2025-06-08 22:28:21'),
-(2, '000004', 'CRS004', '2025-06-08 23:22:36');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `log_transaksi`
 --
 
@@ -238,31 +217,8 @@ CREATE TABLE `log_transaksi` (
 -- Dumping data for table `log_transaksi`
 --
 
-INSERT INTO `log_transaksi` (`id_log`, `id_transaksi`, `user_id`, `waktu_log`, `aksi`, `total_awal_old`, `total_awal_new`, `total_akhir_old`, `total_akhir_new`, `diskon_old`, `diskon_new`, `status_bayar_old`, `status_bayar_new`, `metode_bayar_old`, `metode_bayar_new`) VALUES
-(1, 'TR0002', '000003', '2025-06-08 16:38:59', 'UPDATE', 8100000.00, 2000000.00, 7614000.00, 1900000.00, 0.06, 0.05, 'Lunas', 'LUNAS', 'E-Wallet', 'QRIS'),
-(2, 'TR0001', '000001', '2025-06-15 13:49:27', 'UPDATE', 100000.00, 100000.00, 100000.00, 100000.00, 0, 0, 'Menunggu Pembayaran', 'Lunas', NULL, NULL);
-
 -- --------------------------------------------------------
 
---
--- Table structure for table `log_warning`
---
-
-CREATE TABLE `log_warning` (
-  `id` int(11) NOT NULL,
-  `user_id` varchar(10) DEFAULT NULL,
-  `jumlah_event` int(11) DEFAULT NULL,
-  `waktu_warning` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `log_warning`
---
-
-INSERT INTO `log_warning` (`id`, `user_id`, `jumlah_event`, `waktu_warning`) VALUES
-(1, '000002', 4, '2025-06-08 22:39:55');
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `paket`
@@ -418,16 +374,11 @@ CREATE TABLE `transaksi` (
   `Paket_ID_Paket` char(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `transaksi`
---
-
-INSERT INTO `transaksi` (`ID_Transaksi`, `Tanggal_Pemesanan`, `Total_Awal`, `REDEEM_CODE`, `Diskon`, `Total_Akhir`, `Status_Pembayaran`, `Tanggal_Dimulai`, `Tanggal_Berakhir`, `Bukti_Pembayaran`, `User_ID`, `Paket_ID_Paket`) VALUES
-('TR0001', '2025-06-15', 100000.00, NULL, 0, 100000.00, 'Lunas', '2025-06-15', '2025-07-15', '2020-08-24.png', '000001', 'PKT1');
 
 --
 -- Triggers `transaksi`
 --
+
 DELIMITER $$
 CREATE TRIGGER `isiTanggalTransaksi` BEFORE UPDATE ON `transaksi` FOR EACH ROW BEGIN
   IF NEW.Status_Pembayaran = 'Lunas' AND OLD.Status_Pembayaran != 'Lunas' THEN
@@ -438,7 +389,8 @@ CREATE TRIGGER `isiTanggalTransaksi` BEFORE UPDATE ON `transaksi` FOR EACH ROW B
   END IF;
 END
 $$
-DELIMITER ;
+DELIMITER ; -- isi tanggak pas udh dibayar
+
 DELIMITER $$
 CREATE TRIGGER `trg_log_transaksi_audit` AFTER UPDATE ON `transaksi` FOR EACH ROW BEGIN
   INSERT INTO log_transaksi (
@@ -457,7 +409,8 @@ CREATE TRIGGER `trg_log_transaksi_audit` AFTER UPDATE ON `transaksi` FOR EACH RO
   );
 END
 $$
-DELIMITER ;
+DELIMITER ; -- log transaksi audit
+
 DELIMITER $$
 CREATE TRIGGER `trigger_hitung_total_akhir` BEFORE INSERT ON `transaksi` FOR EACH ROW BEGIN
   IF NEW.REDEEM_CODE IS NOT NULL AND NEW.Diskon IS NOT NULL THEN
@@ -467,7 +420,7 @@ CREATE TRIGGER `trigger_hitung_total_akhir` BEFORE INSERT ON `transaksi` FOR EAC
   END IF;
 END
 $$
-DELIMITER ;
+DELIMITER ; -- ngitung total akhir kalo dia ada redeem code
 
 -- --------------------------------------------------------
 
@@ -487,7 +440,8 @@ CREATE TABLE `user` (
   `Email` varchar(60) NOT NULL,
   `Tentang_Saya` varchar(150) DEFAULT NULL,
   `Tanggal_Lahir` date NOT NULL,
-  `password` varchar(255) NOT NULL DEFAULT '123456'
+  `password` varchar(255) NOT NULL DEFAULT '123456',
+  `Foto_Profil` VARCHAR(255) NOT NULL DEFAULT '/uploads/default.jpeg'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -530,20 +484,6 @@ INSERT INTO `user_course` (`User_ID`, `Courses_ID_Courses`, `Status_course`) VAL
 ('000004', 'CRS009', 'Belum Lulus'),
 ('000005', 'CRS006', 'Lulus');
 
---
--- Triggers `user_course`
---
-DELIMITER $$
-CREATE TRIGGER `trg_log_kelulusan` AFTER UPDATE ON `user_course` FOR EACH ROW BEGIN
-    IF OLD.Status_course <> 'Lulus' AND NEW.Status_course = 'Lulus' THEN
-        INSERT INTO log_kelulusan (user_id, kursus_id)
-        VALUES (NEW.User_ID, NEW.Courses_ID_Courses);
-    END IF;
-END
-$$
-DELIMITER ;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `user_event`
@@ -571,24 +511,6 @@ INSERT INTO `user_event` (`User_ID`, `Event_ID_Event`) VALUES
 ('000006', 'EVX001'),
 ('000007', 'EVX002');
 
---
--- Triggers `user_event`
---
-DELIMITER $$
-CREATE TRIGGER `trg_warning_event` AFTER INSERT ON `user_event` FOR EACH ROW BEGIN
-    DECLARE total_event INT;
-
-    SELECT COUNT(*) INTO total_event
-    FROM user_event
-    WHERE User_ID = NEW.User_ID;
-
-    IF total_event >= 4 THEN
-        INSERT INTO log_warning (user_id, jumlah_event)
-        VALUES (NEW.User_ID, total_event);
-    END IF;
-END
-$$
-DELIMITER ;
 
 --
 -- Indexes for dumped tables
@@ -630,11 +552,6 @@ ALTER TABLE `karyawan`
   ADD PRIMARY KEY (`NIK`),
   ADD KEY `idx_karyawan_email` (`Email`);
 
---
--- Indexes for table `log_kelulusan`
---
-ALTER TABLE `log_kelulusan`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `log_transaksi`
@@ -642,11 +559,6 @@ ALTER TABLE `log_kelulusan`
 ALTER TABLE `log_transaksi`
   ADD PRIMARY KEY (`id_log`);
 
---
--- Indexes for table `log_warning`
---
-ALTER TABLE `log_warning`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `paket`
@@ -709,23 +621,13 @@ ALTER TABLE `user_event`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `log_kelulusan`
---
-ALTER TABLE `log_kelulusan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `log_transaksi`
 --
 ALTER TABLE `log_transaksi`
-  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
---
--- AUTO_INCREMENT for table `log_warning`
---
-ALTER TABLE `log_warning`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
