@@ -140,7 +140,6 @@ CREATE TABLE `event` (
   `Jenis_Event` varchar(30) NOT NULL,
   `Deskripsi_Event` varchar(200) DEFAULT NULL,
   `Lokasi_Acara` varchar(20) NOT NULL,
-  `Biaya_Pendaftaran` decimal(10,2) NOT NULL,
   `Kuota_Pendaftaran` int(11) NOT NULL,
   `tanggal_mulai_event` date NOT NULL,
   `tanggal_berakhir_event` date NOT NULL,
