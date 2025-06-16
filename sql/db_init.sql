@@ -151,11 +151,11 @@ CREATE TABLE `event` (
 -- Dumping data for table `event`
 --
 
-INSERT INTO `event` (`ID_event`, `Nama_Event`, `Jenis_Event`, `Deskripsi_Event`, `Lokasi_Acara`, `Biaya_Pendaftaran`, `Kuota_Pendaftaran`, `tanggal_mulai_event`, `tanggal_berakhir_event`, `Sertifikat_ID_Sertifikat`, `Karyawan_NIK`) VALUES
-('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BRI!', 'Zoom', 70000.00, 200, '2023-10-01', '2023-10-11', 'SRF011', '1456789012345623'),
-('EVX002', 'Empowering Tech Explorers', 'Seminar', 'Get ready to be inspired and empowered at the GDSC Trilogi University Onboarding! We are thrilled to welcome a special guest who will share invaluable insights and knowledge', 'Zoom', 20000.00, 250, '2023-08-03', '2023-08-09', 'SRF012', '1367890123456245'),
-('EVX003', 'Study Jam UI/UX', 'Workshop', 'Study Jam UI/UX merupakan kelompok belajar yang diselenggarakan oleh GDSC Maliki dan komunitas UINUX yang membahas tentang UX Design.', 'Discord', 0.00, 150, '2023-06-09', '2023-06-16', 'SRF013', '1456789012345623'),
-('EVX004', 'Intermediate Python', 'Workshop', 'Kali ini kita akan belajar lebih banyak tentang Python, khususnya OOP, Subprogram, dll. Kita akan mengeksplorasi lebih jauh tentang penggunaan bahasa Python dan cara mengimplementasikannya dalam proye', 'Google Meet', 50000.00, 180, '2023-11-20', '2023-11-28', 'SRF014', '1234567890123456');
+INSERT INTO `event` (`ID_event`, `Nama_Event`, `Jenis_Event`, `Deskripsi_Event`, `Lokasi_Acara`, `Kuota_Pendaftaran`, `tanggal_mulai_event`, `tanggal_berakhir_event`, `Sertifikat_ID_Sertifikat`, `Karyawan_NIK`) VALUES
+('EVX001', 'Cyber Security in Banking', 'Seminar', 'Dalam perkembangan zaman, keamanan dalam dunia banking juga menjadi perhatian sangat penting untuk di perhatikan. Maka dari itu GDSC iSTTS kembali hadir dalam rangka seminar bersama BRI!', 'Zoom', 200, '2023-10-01', '2023-10-11', 'SRF011', '1456789012345623'),
+('EVX002', 'Empowering Tech Explorers', 'Seminar', 'Get ready to be inspired and empowered at the GDSC Trilogi University Onboarding! We are thrilled to welcome a special guest who will share invaluable insights and knowledge', 'Zoom', 250, '2023-08-03', '2023-08-09', 'SRF012', '1367890123456245'),
+('EVX003', 'Study Jam UI/UX', 'Workshop', 'Study Jam UI/UX merupakan kelompok belajar yang diselenggarakan oleh GDSC Maliki dan komunitas UINUX yang membahas tentang UX Design.', 'Discord', 150, '2023-06-09', '2023-06-16', 'SRF013', '1456789012345623'),
+('EVX004', 'Intermediate Python', 'Workshop', 'Kali ini kita akan belajar lebih banyak tentang Python, khususnya OOP, Subprogram, dll. Kita akan mengeksplorasi lebih jauh tentang penggunaan bahasa Python dan cara mengimplementasikannya dalam proyek', 'Google Meet', 180, '2023-11-20', '2023-11-28', 'SRF014', '1234567890123456');
 
 -- --------------------------------------------------------
 
